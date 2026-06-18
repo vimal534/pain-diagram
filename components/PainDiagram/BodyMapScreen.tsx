@@ -1,173 +1,135 @@
 import React from 'react';
 import { BodyView, BodyRegion, SelectedRegion } from '../../types/pain';
+import { colors, radius, shadow, font } from './tokens';
 
-// Body silhouette images from Figma
 const BODY_FRONT_IMAGE = 'https://www.figma.com/api/mcp/asset/ffdc20de-e1a1-4554-83ac-35b3b3ab080e';
 const BODY_BACK_IMAGE = 'https://www.figma.com/api/mcp/asset/860d7b83-e618-4395-9e7a-9b99e66d762c';
 const CHEVRON_LEFT = 'https://www.figma.com/api/mcp/asset/b8710420-86dd-44df-b57e-d78318c03f58';
-const HIGHLIGHT_ZONE = 'https://www.figma.com/api/mcp/asset/b28bc22f-6f5a-43c4-9470-9212a657495b';
 
-const BODY_REGIONS: BodyRegion[] = [
-  // Front view regions (positions as % of image container)
-  { id: 'right-shoulder-front', label: 'Right shoulder', side: 'right', view: 'front', top: 20, left: 52, width: 23, height: 14 },
-  { id: 'left-shoulder-front', label: 'Left shoulder', side: 'left', view: 'front', top: 20, left: 25, width: 23, height: 14 },
-  { id: 'right-arm-front', label: 'Right arm', side: 'right', view: 'front', top: 32, left: 58, width: 16, height: 20 },
-  { id: 'left-arm-front', label: 'Left arm', side: 'left', view: 'front', top: 32, left: 26, width: 16, height: 20 },
-  { id: 'chest-front', label: 'Chest', side: 'center', view: 'front', top: 22, left: 35, width: 30, height: 18 },
-  { id: 'abdomen-front', label: 'Abdomen', side: 'center', view: 'front', top: 38, left: 35, width: 30, height: 16 },
-  { id: 'right-hip-front', label: 'Right hip', side: 'right', view: 'front', top: 52, left: 50, width: 18, height: 14 },
-  { id: 'left-hip-front', label: 'Left hip', side: 'left', view: 'front', top: 52, left: 32, width: 18, height: 14 },
-  { id: 'right-knee-front', label: 'Right knee', side: 'right', view: 'front', top: 68, left: 52, width: 16, height: 12 },
-  { id: 'left-knee-front', label: 'Left knee', side: 'left', view: 'front', top: 68, left: 32, width: 16, height: 12 },
-  { id: 'right-ankle-front', label: 'Right ankle', side: 'right', view: 'front', top: 86, left: 52, width: 14, height: 8 },
-  { id: 'left-ankle-front', label: 'Left ankle', side: 'left', view: 'front', top: 86, left: 34, width: 14, height: 8 },
-  // Back view regions
-  { id: 'upper-back', label: 'Upper back', side: 'center', view: 'back', top: 20, left: 33, width: 34, height: 16 },
-  { id: 'lower-back', label: 'Lower back', side: 'center', view: 'back', top: 37, left: 35, width: 30, height: 14 },
-  { id: 'right-shoulder-back', label: 'Right shoulder', side: 'right', view: 'back', top: 18, left: 52, width: 22, height: 14 },
-  { id: 'left-shoulder-back', label: 'Left shoulder', side: 'left', view: 'back', top: 18, left: 26, width: 22, height: 14 },
-  { id: 'right-glute', label: 'Right glute', side: 'right', view: 'back', top: 50, left: 50, width: 18, height: 14 },
-  { id: 'left-glute', label: 'Left glute', side: 'left', view: 'back', top: 50, left: 32, width: 18, height: 14 },
+export const BODY_REGIONS: BodyRegion[] = [
+  { id: 'right-shoulder-front', label: 'Right Shoulder', side: 'right', view: 'front', top: 19, left: 52, width: 21, height: 13 },
+  { id: 'left-shoulder-front', label: 'Left Shoulder', side: 'left', view: 'front', top: 19, left: 27, width: 21, height: 13 },
+  { id: 'right-arm-front', label: 'Right Forearm', side: 'right', view: 'front', top: 36, left: 57, width: 15, height: 18 },
+  { id: 'left-arm-front', label: 'Left Forearm', side: 'left', view: 'front', top: 36, left: 28, width: 15, height: 18 },
+  { id: 'chest-front', label: 'Chest', side: 'center', view: 'front', top: 22, left: 36, width: 28, height: 16 },
+  { id: 'abdomen-front', label: 'Abdomen', side: 'center', view: 'front', top: 38, left: 37, width: 26, height: 14 },
+  { id: 'right-hip-front', label: 'Right Hip', side: 'right', view: 'front', top: 51, left: 51, width: 17, height: 13 },
+  { id: 'left-hip-front', label: 'Left Hip', side: 'left', view: 'front', top: 51, left: 32, width: 17, height: 13 },
+  { id: 'right-thigh-front', label: 'Right Thigh', side: 'right', view: 'front', top: 63, left: 52, width: 15, height: 16 },
+  { id: 'left-thigh-front', label: 'Left Thigh', side: 'left', view: 'front', top: 63, left: 33, width: 15, height: 16 },
+  { id: 'right-knee-front', label: 'Right Knee', side: 'right', view: 'front', top: 75, left: 52, width: 14, height: 10 },
+  { id: 'left-knee-front', label: 'Left Knee', side: 'left', view: 'front', top: 75, left: 34, width: 14, height: 10 },
+  { id: 'right-ankle-front', label: 'Right Ankle', side: 'right', view: 'front', top: 88, left: 52, width: 12, height: 7 },
+  { id: 'left-ankle-front', label: 'Left Ankle', side: 'left', view: 'front', top: 88, left: 36, width: 12, height: 7 },
+  { id: 'neck-front', label: 'Neck', side: 'center', view: 'front', top: 11, left: 40, width: 20, height: 9 },
+  { id: 'head-front', label: 'Head', side: 'center', view: 'front', top: 1, left: 38, width: 24, height: 11 },
+  // Back
+  { id: 'upper-back', label: 'Upper Back', side: 'center', view: 'back', top: 20, left: 34, width: 32, height: 15 },
+  { id: 'lower-back', label: 'Lower Back', side: 'center', view: 'back', top: 36, left: 36, width: 28, height: 13 },
+  { id: 'right-shoulder-back', label: 'Right Shoulder', side: 'right', view: 'back', top: 17, left: 53, width: 20, height: 13 },
+  { id: 'left-shoulder-back', label: 'Left Shoulder', side: 'left', view: 'back', top: 17, left: 27, width: 20, height: 13 },
+  { id: 'right-glute', label: 'Right Glute', side: 'right', view: 'back', top: 50, left: 51, width: 17, height: 13 },
+  { id: 'left-glute', label: 'Left Glute', side: 'left', view: 'back', top: 50, left: 32, width: 17, height: 13 },
+  { id: 'right-hamstring', label: 'Right Hamstring', side: 'right', view: 'back', top: 63, left: 51, width: 15, height: 16 },
+  { id: 'left-hamstring', label: 'Left Hamstring', side: 'left', view: 'back', top: 63, left: 34, width: 15, height: 16 },
+  { id: 'neck-back', label: 'Neck', side: 'center', view: 'back', top: 11, left: 40, width: 20, height: 9 },
 ];
 
 interface Props {
   bodyView: BodyView;
   selectedRegions: SelectedRegion[];
-  onViewToggle: (view: BodyView) => void;
-  onRegionTap: (region: BodyRegion) => void;
+  onViewToggle: (v: BodyView) => void;
+  onRegionTap: (r: BodyRegion) => void;
+  onRemoveRegion: (id: string) => void;
+  onClearAll: () => void;
+  onNext: () => void;
   onBack: () => void;
 }
 
-const colors = {
-  primary: '#2487F5',
-  textPrimary: '#101828',
-  textSecondary: '#6A7282',
-  cardBg: '#FEFEFE',
-  cardBorder: '#ECECEC',
-  toggleBg: '#F8F9FA',
-};
-
-export default function BodyMapScreen({ bodyView, selectedRegions, onViewToggle, onRegionTap, onBack }: Props) {
+export default function BodyMapScreen({
+  bodyView, selectedRegions, onViewToggle, onRegionTap, onRemoveRegion, onClearAll, onNext, onBack,
+}: Props) {
   const bodyImage = bodyView === 'front' ? BODY_FRONT_IMAGE : BODY_BACK_IMAGE;
   const visibleRegions = BODY_REGIONS.filter((r) => r.view === bodyView);
   const selectedIds = selectedRegions.map((s) => s.region.id);
+  const selectedCount = selectedRegions.length;
 
   return (
-    <div
-      style={{
-        backgroundColor: '#FFFFFF',
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        fontFamily: 'Plus Jakarta Sans, sans-serif',
-      }}
-    >
+    <div style={{ backgroundColor: colors.bg, display: 'flex', flexDirection: 'column', height: '100%', fontFamily: font.heading }}>
+      <StatusBar />
+
       {/* Header */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          padding: '16px 20px 18px',
-        }}
-      >
-        <button
-          onClick={onBack}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 0,
-            display: 'flex',
-            alignItems: 'center',
-            width: 17,
-            height: 22,
-            flexShrink: 0,
-          }}
-        >
-          <img src={CHEVRON_LEFT} alt="Back" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 20px 16px' }}>
+        <button onClick={onBack} style={iconBtnStyle}>
+          <img src={CHEVRON_LEFT} alt="Back" style={{ width: 10, height: 18, objectFit: 'contain' }} />
         </button>
-        <h1
-          style={{
-            margin: 0,
-            fontFamily: 'Plus Jakarta Sans, sans-serif',
-            fontWeight: 700,
-            fontSize: 22,
-            lineHeight: '32px',
-            color: colors.textPrimary,
-          }}
-        >
-          Where do you feel pain?
-        </h1>
+        <div>
+          <h1 style={{ margin: 0, fontWeight: 800, fontSize: 22, color: colors.text, letterSpacing: '-0.3px' }}>
+            Where do you feel pain?
+          </h1>
+          <p style={{ margin: '2px 0 0', fontFamily: font.body, fontSize: 13, color: colors.textSecondary }}>
+            Tap the body to select areas
+          </p>
+        </div>
       </div>
 
-      {/* Body map card */}
-      <div style={{ padding: '8px 20px 16px', flex: 1, overflow: 'hidden' }}>
-        <div
-          style={{
-            backgroundColor: colors.cardBg,
-            border: `1px solid ${colors.cardBorder}`,
-            borderRadius: 20,
+      {/* Body card */}
+      <div style={{ flex: 1, padding: '0 20px', minHeight: 0 }}>
+        <div style={{
+          backgroundColor: colors.cardBg,
+          borderRadius: radius.card,
+          boxShadow: shadow.card,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          padding: '12px 0 12px',
+          height: '100%',
+          boxSizing: 'border-box',
+          position: 'relative',
+        }}>
+          {/* Front/Back toggle inside card */}
+          <div style={{
             display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            padding: '8px 0 12px',
-            height: '100%',
-            boxSizing: 'border-box',
-            position: 'relative',
-          }}
-        >
-          {/* Instruction text */}
-          <p
-            style={{
-              margin: '0 0 4px',
-              fontFamily: 'Inter, sans-serif',
-              fontWeight: 400,
-              fontSize: 14,
-              lineHeight: '20px',
-              color: colors.textSecondary,
-            }}
-          >
-            Tap an area of the body
-          </p>
-
-          {/* Left/Right labels */}
-          <div
-            style={{
-              position: 'absolute',
-              top: 44,
-              left: 0,
-              right: 0,
-              display: 'flex',
-              justifyContent: 'space-between',
-              padding: '0 28px',
-            }}
-          >
-            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: colors.textSecondary }}>Left</span>
-            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14, color: colors.textSecondary }}>Right</span>
+            backgroundColor: colors.bg,
+            borderRadius: 14,
+            padding: 3,
+            gap: 2,
+            marginBottom: 8,
+          }}>
+            {(['front', 'back'] as BodyView[]).map((v) => {
+              const active = bodyView === v;
+              return (
+                <button key={v} onClick={() => onViewToggle(v)} style={{
+                  padding: '6px 24px',
+                  borderRadius: 12,
+                  border: 'none',
+                  cursor: 'pointer',
+                  backgroundColor: active ? '#FFFFFF' : 'transparent',
+                  boxShadow: active ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+                  transition: 'all 0.2s',
+                }}>
+                  <span style={{
+                    fontFamily: font.heading,
+                    fontWeight: 600,
+                    fontSize: 13,
+                    color: active ? colors.primary : colors.textSecondary,
+                  }}>
+                    {v.charAt(0).toUpperCase() + v.slice(1)}
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
-          {/* Body image container with click zones */}
-          <div
-            style={{
-              position: 'relative',
-              width: '100%',
-              flex: 1,
-              minHeight: 0,
-            }}
-          >
-            <img
-              src={bodyImage}
-              alt="Body silhouette"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'contain',
-                display: 'block',
-                pointerEvents: 'none',
-              }}
-            />
-            {/* Clickable regions */}
+          {/* Left/Right labels */}
+          <div style={{ position: 'absolute', top: 52, left: 0, right: 0, display: 'flex', justifyContent: 'space-between', padding: '0 24px' }}>
+            <span style={{ fontFamily: font.body, fontSize: 11, color: colors.textMuted, fontWeight: 500 }}>Left</span>
+            <span style={{ fontFamily: font.body, fontSize: 11, color: colors.textMuted, fontWeight: 500 }}>Right</span>
+          </div>
+
+          {/* Body diagram */}
+          <div style={{ position: 'relative', flex: 1, width: '100%', minHeight: 0 }}>
+            <img src={bodyImage} alt="Body" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', pointerEvents: 'none' }} />
             {visibleRegions.map((region) => {
               const isSelected = selectedIds.includes(region.id);
               return (
@@ -181,64 +143,84 @@ export default function BodyMapScreen({ bodyView, selectedRegions, onViewToggle,
                     left: `${region.left}%`,
                     width: `${region.width}%`,
                     height: `${region.height}%`,
-                    background: isSelected ? 'rgba(36, 135, 245, 0.45)' : 'transparent',
+                    background: isSelected ? 'rgba(36,135,245,0.35)' : 'transparent',
                     border: isSelected ? '2px solid #2487F5' : '2px solid transparent',
-                    borderRadius: '50%',
+                    borderRadius: '40%',
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
+                    outline: 'none',
                   }}
                 />
               );
             })}
           </div>
+        </div>
+      </div>
 
-          {/* Front / Back toggle */}
-          <div
-            style={{
-              backgroundColor: colors.toggleBg,
-              borderRadius: 16,
-              padding: 4,
-              display: 'flex',
-              gap: 4,
-              width: 204,
-              boxSizing: 'border-box',
-              marginTop: 8,
-            }}
-          >
-            {(['front', 'back'] as BodyView[]).map((view) => {
-              const isActive = bodyView === view;
-              return (
-                <button
-                  key={view}
-                  onClick={() => onViewToggle(view)}
-                  style={{
-                    flex: 1,
-                    padding: '8px 0',
-                    borderRadius: 14,
-                    border: 'none',
-                    cursor: 'pointer',
-                    backgroundColor: isActive ? '#FFFFFF' : 'transparent',
-                    boxShadow: isActive ? '0px 1px 2px rgba(0,0,0,0.1)' : 'none',
-                    transition: 'all 0.15s ease',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontFamily: isActive ? 'Plus Jakarta Sans, sans-serif' : 'Inter, sans-serif',
-                      fontWeight: 600,
-                      fontSize: 14,
-                      lineHeight: '20px',
-                      color: isActive ? colors.primary : colors.textSecondary,
-                      textTransform: 'capitalize',
-                    }}
-                  >
-                    {view.charAt(0).toUpperCase() + view.slice(1)}
-                  </span>
-                </button>
-              );
-            })}
+      {/* Selected tags */}
+      {selectedCount > 0 && (
+        <div style={{ padding: '12px 20px 0' }}>
+          <div style={{ backgroundColor: colors.cardBg, borderRadius: radius.card, padding: '14px 16px', boxShadow: shadow.card }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <span style={{ fontFamily: font.heading, fontWeight: 700, fontSize: 13, color: colors.text }}>
+                Selected ({selectedCount})
+              </span>
+              <button onClick={onClearAll} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: font.body, fontSize: 12, color: colors.textMuted, fontWeight: 500 }}>
+                Clear all
+              </button>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {selectedRegions.map((sr) => (
+                <div key={sr.region.id} style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  backgroundColor: colors.orangeBg, borderRadius: 9999, padding: '4px 10px',
+                }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: colors.orange, display: 'inline-block', flexShrink: 0 }} />
+                  <span style={{ fontFamily: font.body, fontSize: 12, fontWeight: 500, color: '#1E2939' }}>{sr.region.label}</span>
+                  <button onClick={() => onRemoveRegion(sr.region.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', fontSize: 14, lineHeight: 1, padding: 0, display: 'flex' }}>×</button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
+      )}
+
+      {/* Next button */}
+      <div style={{ padding: '12px 20px 28px' }}>
+        <button
+          onClick={onNext}
+          disabled={selectedCount === 0}
+          style={{
+            width: '100%', padding: '17px 0', borderRadius: radius.button, border: 'none',
+            backgroundColor: selectedCount > 0 ? colors.primary : '#D1D5DB',
+            cursor: selectedCount > 0 ? 'pointer' : 'not-allowed',
+            boxShadow: selectedCount > 0 ? shadow.button : 'none',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            transition: 'all 0.2s',
+          }}
+        >
+          <span style={{ fontFamily: font.heading, fontWeight: 700, fontSize: 16, color: '#FFFFFF' }}>
+            {selectedCount === 0 ? 'Select a pain area' : `Next  →`}
+          </span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+const iconBtnStyle: React.CSSProperties = {
+  width: 36, height: 36, borderRadius: 12, backgroundColor: '#FFFFFF',
+  border: `1px solid ${colors.border}`, display: 'flex', alignItems: 'center',
+  justifyContent: 'center', cursor: 'pointer', flexShrink: 0,
+  boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+};
+
+function StatusBar() {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 24px 4px', flexShrink: 0 }}>
+      <span style={{ fontFamily: font.body, fontWeight: 600, fontSize: 15, color: colors.text }}>9:41</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: colors.text }}>
+        <span>▐▐▐</span><span>WiFi</span><span>🔋</span>
       </div>
     </div>
   );

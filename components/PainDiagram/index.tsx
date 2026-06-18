@@ -1,157 +1,166 @@
 import React, { useState } from 'react';
-import {
-  PainDiagramState,
-  BodyRegion,
-  SelectedRegion,
-  BodyView,
-  PainContextData,
-} from '../../types/pain';
-import BodyMapScreen from './BodyMapScreen';
-import PainDetailSheet from './PainDetailSheet';
-import PainContextScreen from './PainContextScreen';
+import { AppState, AppStep, BodyRegion, SelectedRegion } from '../../types/pain';
+import IntroScreen from './IntroScreen';
+import BodyMapScreen, { BODY_REGIONS } from './BodyMapScreen';
+import RefineSheet from './RefineSheet';
+import QuestionsScreen from './QuestionsScreen';
+import ReviewScreen from './ReviewScreen';
 
-const initialContext: PainContextData = {
+const emptyRegion = (region: BodyRegion): SelectedRegion => ({
+  region,
+  exactSpot: null,
+  painLevel: null,
   starts: [],
   duration: null,
   pattern: null,
   dailyImpact: null,
-};
+  descriptors: [],
+});
 
-const initialState: PainDiagramState = {
-  step: 1,
+const initial: AppState = {
+  step: 'intro',
   bodyView: 'front',
   selectedRegions: [],
-  activeRegion: null,
-  painContext: initialContext,
+  editingRegionId: null,
 };
 
 interface Props {
-  onComplete?: (state: PainDiagramState) => void;
-  onBack?: () => void;
+  onComplete?: (regions: SelectedRegion[]) => void;
 }
 
-export default function PainDiagram({ onComplete, onBack }: Props) {
-  const [state, setState] = useState<PainDiagramState>(initialState);
+export default function PainDiagram({ onComplete }: Props) {
+  const [state, setState] = useState<AppState>(initial);
+  const [pendingRegion, setPendingRegion] = useState<SelectedRegion | null>(null);
 
+  const editing = state.editingRegionId
+    ? state.selectedRegions.find((r) => r.region.id === state.editingRegionId) ?? null
+    : null;
+
+  // Tap a body region → open refine sheet
   const handleRegionTap = (region: BodyRegion) => {
     const existing = state.selectedRegions.find((r) => r.region.id === region.id);
-    const activeRegion: SelectedRegion = existing ?? {
-      region,
-      exactSpot: null,
-      painLevel: null,
-      descriptors: [],
-    };
-    setState((s) => ({
-      ...s,
-      activeRegion,
-      step: 1, // stay on step 1, sheet opens over it
-    }));
+    const sr = existing ?? emptyRegion(region);
+    setPendingRegion(sr);
+    setState((s) => ({ ...s, editingRegionId: region.id }));
   };
 
-  const handleSheetUpdate = (updated: SelectedRegion) => {
+  // Update pending region from refine sheet
+  const handleRefineUpdate = (updated: SelectedRegion) => {
+    setPendingRegion(updated);
+    // Also sync into selectedRegions
     setState((s) => {
       const exists = s.selectedRegions.some((r) => r.region.id === updated.region.id);
       return {
         ...s,
-        activeRegion: updated,
         selectedRegions: exists
-          ? s.selectedRegions.map((r) => (r.region.id === updated.region.id ? updated : r))
+          ? s.selectedRegions.map((r) => r.region.id === updated.region.id ? updated : r)
           : [...s.selectedRegions, updated],
       };
     });
   };
 
-  const handleSheetRemove = () => {
+  // Confirm refine → go to questions
+  const handleRefineConfirm = () => {
+    setState((s) => ({ ...s, step: 'questions' }));
+  };
+
+  // Close refine sheet without advancing
+  const handleRefineClose = () => {
+    setState((s) => ({ ...s, editingRegionId: null }));
+    setPendingRegion(null);
+  };
+
+  // Update region from questions screen
+  const handleQuestionsUpdate = (updated: SelectedRegion) => {
     setState((s) => ({
       ...s,
-      activeRegion: null,
-      selectedRegions: s.selectedRegions.filter(
-        (r) => r.region.id !== s.activeRegion?.region.id
+      selectedRegions: s.selectedRegions.map((r) =>
+        r.region.id === updated.region.id ? updated : r
       ),
     }));
   };
 
-  const handleSheetClose = () => {
-    setState((s) => ({ ...s, activeRegion: null }));
-  };
+  const go = (step: AppStep) => setState((s) => ({ ...s, step }));
 
-  const handleSheetNext = () => {
-    setState((s) => ({ ...s, activeRegion: null, step: 3 }));
-  };
-
-  const handleViewToggle = (view: BodyView) => {
-    setState((s) => ({ ...s, bodyView: view }));
-  };
-
-  const handleContextChange = (ctx: PainContextData) => {
-    setState((s) => ({ ...s, painContext: ctx }));
-  };
-
-  const handleRemoveRegion = (regionId: string) => {
-    setState((s) => ({
-      ...s,
-      selectedRegions: s.selectedRegions.filter((r) => r.region.id !== regionId),
-    }));
-  };
-
-  const handleSubmit = () => {
-    onComplete?.(state);
-  };
-
-  const handleBack = () => {
-    if (state.step === 3) {
-      setState((s) => ({ ...s, step: 1 }));
-    } else {
-      onBack?.();
-    }
-  };
+  const currentRegion =
+    state.editingRegionId
+      ? state.selectedRegions.find((r) => r.region.id === state.editingRegionId) ?? null
+      : null;
 
   return (
-    <div
-      style={{
-        position: 'relative',
-        width: '100%',
-        height: '100%',
-        overflow: 'hidden',
-        backgroundColor: '#FFFFFF',
-      }}
-    >
-      {/* Screen 1: Body Map (always rendered as base) */}
-      {state.step !== 3 && (
-        <div style={{ position: 'absolute', inset: 0 }}>
-          <BodyMapScreen
-            bodyView={state.bodyView}
-            selectedRegions={state.selectedRegions}
-            onViewToggle={handleViewToggle}
-            onRegionTap={handleRegionTap}
-            onBack={handleBack}
-          />
-        </div>
+    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', backgroundColor: '#F8F8FD' }}>
+      {/* SCREEN 1: Intro */}
+      {state.step === 'intro' && (
+        <IntroScreen onStart={() => go('bodymap')} />
       )}
 
-      {/* Screen 2: Pain Detail Sheet (slides over Screen 1) */}
-      {state.step !== 3 && state.activeRegion && (
-        <PainDetailSheet
-          region={state.activeRegion}
-          onUpdate={handleSheetUpdate}
-          onRemove={handleSheetRemove}
-          onNext={handleSheetNext}
-          onClose={handleSheetClose}
+      {/* SCREEN 2: Body Map */}
+      {(state.step === 'bodymap' || state.step === 'refine') && (
+        <BodyMapScreen
+          bodyView={state.bodyView}
+          selectedRegions={state.selectedRegions}
+          onViewToggle={(v) => setState((s) => ({ ...s, bodyView: v }))}
+          onRegionTap={handleRegionTap}
+          onRemoveRegion={(id) => setState((s) => ({ ...s, selectedRegions: s.selectedRegions.filter((r) => r.region.id !== id) }))}
+          onClearAll={() => setState((s) => ({ ...s, selectedRegions: [] }))}
+          onNext={() => {
+            if (state.selectedRegions.length > 0) {
+              const first = state.selectedRegions[0];
+              setState((s) => ({ ...s, editingRegionId: first.region.id, step: 'questions' }));
+            }
+          }}
+          onBack={() => go('intro')}
         />
       )}
 
-      {/* Screen 3: Pain Context */}
-      {state.step === 3 && (
-        <div style={{ position: 'absolute', inset: 0 }}>
-          <PainContextScreen
-            selectedRegions={state.selectedRegions}
-            context={state.painContext}
-            onContextChange={handleContextChange}
-            onBack={handleBack}
-            onSubmit={handleSubmit}
-            onRemoveRegion={handleRemoveRegion}
-          />
-        </div>
+      {/* SCREEN 2b: Refine Sheet (slides over body map) */}
+      {state.step === 'refine' && currentRegion && (
+        <RefineSheet
+          region={currentRegion}
+          onUpdate={handleRefineUpdate}
+          onClose={handleRefineClose}
+          onConfirm={handleRefineConfirm}
+        />
+      )}
+
+      {/* Refine sheet triggered by region tap (on bodymap step) */}
+      {state.step === 'bodymap' && state.editingRegionId && currentRegion && (
+        <RefineSheet
+          region={currentRegion}
+          onUpdate={handleRefineUpdate}
+          onClose={handleRefineClose}
+          onConfirm={() => setState((s) => ({ ...s, step: 'questions' }))}
+        />
+      )}
+
+      {/* SCREEN 4: Questions */}
+      {state.step === 'questions' && currentRegion && (
+        <QuestionsScreen
+          region={currentRegion}
+          onUpdate={handleQuestionsUpdate}
+          onBack={() => setState((s) => ({ ...s, step: 'bodymap', editingRegionId: null }))}
+          onNext={() => go('review')}
+        />
+      )}
+
+      {/* SCREEN 5: Review */}
+      {state.step === 'review' && (
+        <ReviewScreen
+          selectedRegions={state.selectedRegions}
+          onBack={() => go('bodymap')}
+          onAddAnother={() => setState((s) => ({ ...s, step: 'bodymap', editingRegionId: null }))}
+          onEditRegion={(id) => {
+            setState((s) => ({ ...s, editingRegionId: id, step: 'questions' }));
+          }}
+          onDeleteRegion={(id) => {
+            setState((s) => ({
+              ...s,
+              selectedRegions: s.selectedRegions.filter((r) => r.region.id !== id),
+              step: s.selectedRegions.length <= 1 ? 'bodymap' : 'review',
+            }));
+          }}
+          onSubmit={() => onComplete?.(state.selectedRegions)}
+        />
       )}
     </div>
   );
