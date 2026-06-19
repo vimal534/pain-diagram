@@ -338,10 +338,10 @@ export default function BodyMapScreen({
           <span style={{ fontFamily: font.body, fontSize: 11, fontWeight: 700, color: '#9CA3AF', letterSpacing: '0.8px' }}>RIGHT</span>
         </div>
 
-        {/* SVG body — uses official SVG paths, viewBox 0 0 1023 1537 */}
+        {/* SVG body — viewBox tuned per view so both figures render at identical visual height */}
         <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '4px 0 0', minHeight: 0, overflow: 'hidden' }}>
           <svg
-            viewBox="0 0 1023 1537"
+            viewBox={view === 'front' ? '10 -3 1004 1509' : '-7 -11 1037 1558'}
             style={{ height: '100%', width: 'auto', maxWidth: '100%', display: 'block' }}
             onMouseLeave={() => setHoveredId(null)}
           >
