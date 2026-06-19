@@ -140,6 +140,118 @@ export const BODY_REGIONS: BodyRegion[] = [
   },
 ];
 
+// ─── Back body regions (from back_body_pain_diagram_dark.svg) ─────────────────
+export const BACK_BODY_REGIONS: BodyRegion[] = [
+  // HEAD (back)
+  {
+    id: 'back-head', label: 'Head', side: 'center', anatomyGroup: 'head',
+    tooltipX: 511, tooltipY: 55,
+    svgPath: 'M 485 73 L 470 82 L 460 92 L 453 104 L 449 117 L 447 133 L 449 161 L 448 162 L 446 159 L 442 159 L 437 165 L 437 175 L 443 191 L 451 201 L 455 201 L 448 170 L 449 161 L 453 183 L 458 199 L 459 218 L 465 236 L 488 227 L 508 224 L 532 226 L 558 236 L 564 219 L 564 201 L 574 160 L 574 173 L 567 201 L 571 201 L 576 197 L 586 175 L 585 163 L 581 159 L 575 161 L 574 160 L 575 123 L 570 104 L 563 92 L 552 81 L 536 72 L 519 68 L 505 68 Z',
+  },
+  // UPPER BACK (neck + upper back + shoulders combined)
+  {
+    id: 'upper-back', label: 'Upper Back', side: 'center', anatomyGroup: 'upperback',
+    tooltipX: 511, tooltipY: 310,
+    svgPath: 'M 465 241 L 464 257 L 459 270 L 447 282 L 420 297 L 432 315 L 432 338 L 417 372 L 387 419 L 376 445 L 374 473 L 384 507 L 391 543 L 414 550 L 430 552 L 462 552 L 493 548 L 592 552 L 612 549 L 629 543 L 635 513 L 648 472 L 648 455 L 641 431 L 605 370 L 592 339 L 591 318 L 594 310 L 604 297 L 582 286 L 567 273 L 560 259 L 558 241 L 545 234 L 525 229 L 497 229 Z',
+  },
+  // MID BACK
+  {
+    id: 'mid-back', label: 'Mid Back', side: 'center', anatomyGroup: 'midback',
+    tooltipX: 511, tooltipY: 590,
+    svgPath: 'M 628 547 L 610 553 L 588 556 L 563 556 L 515 551 L 489 552 L 458 556 L 433 556 L 416 554 L 392 548 L 399 597 L 398 628 L 393 667 L 427 673 L 482 686 L 500 688 L 538 686 L 589 674 L 625 668 L 626 658 L 621 623 L 621 591 Z',
+  },
+  // LOWER BACK
+  {
+    id: 'lower-back', label: 'Lower Back', side: 'center', anatomyGroup: 'lowerback',
+    tooltipX: 511, tooltipY: 720,
+    svgPath: 'M 392 673 L 377 756 L 374 786 L 383 801 L 400 819 L 422 833 L 435 838 L 458 842 L 482 841 L 507 834 L 514 834 L 528 839 L 549 842 L 577 840 L 598 833 L 616 822 L 634 804 L 646 785 L 638 728 L 627 672 L 607 674 L 557 686 L 527 691 L 485 690 L 408 673 Z',
+  },
+  // LEFT SHOULDER (back view, left of screen)
+  {
+    id: 'l-shoulder-back', label: 'Left Shoulder', side: 'left', anatomyGroup: 'shoulder',
+    tooltipX: 355, tooltipY: 330,
+    svgPath: 'M 417 300 L 412 299 L 394 304 L 380 305 L 379 306 L 369 306 L 368 307 L 353 309 L 334 317 L 324 324 L 317 331 L 308 343 L 300 359 L 294 378 L 293 389 L 292 390 L 292 402 L 291 403 L 292 449 L 302 445 L 311 443 L 332 443 L 343 446 L 355 452 L 370 466 L 371 451 L 378 429 L 391 405 L 416 366 L 423 352 L 428 338 L 430 329 L 429 318 L 426 311 Z',
+  },
+  // RIGHT SHOULDER (back view, right of screen)
+  {
+    id: 'r-shoulder-back', label: 'Right Shoulder', side: 'right', anatomyGroup: 'shoulder',
+    tooltipX: 665, tooltipY: 330,
+    svgPath: 'M 608 299 L 599 309 L 595 318 L 594 330 L 600 351 L 611 373 L 631 404 L 642 424 L 650 447 L 652 466 L 663 455 L 679 446 L 690 443 L 710 443 L 719 445 L 728 449 L 728 422 L 729 421 L 729 388 L 728 387 L 728 380 L 721 355 L 709 334 L 697 322 L 679 312 L 665 308 L 634 305 L 616 301 L 612 299 Z',
+  },
+  // LEFT UPPER ARM (back)
+  {
+    id: 'l-upperarm-back', label: 'Left Upper Arm', side: 'left', anatomyGroup: 'upperarm',
+    tooltipX: 310, tooltipY: 525,
+    svgPath: 'M 310 447 L 292 453 L 291 461 L 290 462 L 290 467 L 288 473 L 288 478 L 286 484 L 286 489 L 284 495 L 284 500 L 282 506 L 282 511 L 280 517 L 280 522 L 278 528 L 278 533 L 277 534 L 275 547 L 274 548 L 274 551 L 273 552 L 273 555 L 272 556 L 272 559 L 271 560 L 271 563 L 269 567 L 268 573 L 273 578 L 285 586 L 291 588 L 296 591 L 305 594 L 308 594 L 309 595 L 313 595 L 314 596 L 334 597 L 336 593 L 336 590 L 337 589 L 337 586 L 338 585 L 338 582 L 339 581 L 341 572 L 343 569 L 344 564 L 353 543 L 364 510 L 365 503 L 367 499 L 367 496 L 370 487 L 371 475 L 367 468 L 356 457 L 343 450 L 337 448 L 333 448 L 332 447 L 326 447 L 325 446 Z',
+  },
+  // RIGHT UPPER ARM (back)
+  {
+    id: 'r-upperarm-back', label: 'Right Upper Arm', side: 'right', anatomyGroup: 'upperarm',
+    tooltipX: 710, tooltipY: 525,
+    svgPath: 'M 712 447 L 696 446 L 695 447 L 689 447 L 688 448 L 685 448 L 676 451 L 666 457 L 654 469 L 650 476 L 651 478 L 652 488 L 653 489 L 653 493 L 654 494 L 659 517 L 661 521 L 661 524 L 666 539 L 668 542 L 669 547 L 671 550 L 676 565 L 678 568 L 683 583 L 684 591 L 686 597 L 700 597 L 701 596 L 706 596 L 707 595 L 711 595 L 712 594 L 719 593 L 722 591 L 729 589 L 740 583 L 752 573 L 751 567 L 748 559 L 748 556 L 747 555 L 747 552 L 746 551 L 746 548 L 745 547 L 745 543 L 744 542 L 744 538 L 743 537 L 743 533 L 742 532 L 742 528 L 740 522 L 740 517 L 738 511 L 736 494 L 735 493 L 734 483 L 733 482 L 733 478 L 731 472 L 731 467 L 730 466 L 730 461 L 729 460 L 729 454 L 725 451 L 723 451 L 720 449 L 713 448 Z',
+  },
+  // LEFT FOREARM (back)
+  {
+    id: 'l-forearm-back', label: 'Left Forearm', side: 'left', anatomyGroup: 'forearm',
+    tooltipX: 270, tooltipY: 680,
+    svgPath: 'M 266 577 L 260 591 L 250 621 L 241 667 L 240 681 L 239 682 L 235 712 L 229 737 L 221 761 L 221 764 L 225 767 L 265 784 L 285 737 L 311 686 L 318 669 L 329 633 L 334 604 L 334 600 L 316 600 L 302 597 L 291 593 L 280 587 Z',
+  },
+  // RIGHT FOREARM (back)
+  {
+    id: 'r-forearm-back', label: 'Right Forearm', side: 'right', anatomyGroup: 'forearm',
+    tooltipX: 755, tooltipY: 680,
+    svgPath: 'M 752 578 L 740 587 L 724 595 L 703 600 L 686 600 L 693 640 L 704 673 L 734 735 L 750 771 L 752 778 L 755 784 L 770 777 L 786 771 L 798 765 L 799 763 L 793 746 L 785 715 L 777 657 L 769 618 L 759 589 L 754 578 Z',
+  },
+  // LEFT HAND (back)
+  {
+    id: 'l-hand-back', label: 'Left Hand', side: 'left', anatomyGroup: 'hand',
+    tooltipX: 210, tooltipY: 835,
+    svgPath: 'M 221 768 L 218 768 L 186 797 L 174 824 L 162 841 L 162 845 L 165 848 L 173 848 L 178 845 L 189 833 L 190 834 L 181 867 L 177 888 L 177 898 L 181 902 L 186 902 L 191 897 L 196 874 L 200 863 L 201 868 L 196 890 L 194 908 L 195 914 L 199 918 L 205 917 L 209 911 L 211 894 L 214 884 L 215 889 L 212 901 L 212 910 L 213 912 L 219 914 L 225 909 L 228 901 L 234 869 L 235 875 L 233 895 L 237 899 L 242 899 L 245 896 L 247 890 L 251 858 L 260 833 L 263 820 L 264 788 L 225 771 Z',
+  },
+  // RIGHT HAND (back)
+  {
+    id: 'r-hand-back', label: 'Right Hand', side: 'right', anatomyGroup: 'hand',
+    tooltipX: 815, tooltipY: 835,
+    svgPath: 'M 799 768 L 756 787 L 756 817 L 761 838 L 768 857 L 772 882 L 772 891 L 774 896 L 778 899 L 782 899 L 785 896 L 786 875 L 793 909 L 799 914 L 802 914 L 806 911 L 807 905 L 804 891 L 805 885 L 810 912 L 813 917 L 819 918 L 823 915 L 824 912 L 823 894 L 818 870 L 819 864 L 829 900 L 835 903 L 838 902 L 841 898 L 841 887 L 838 870 L 829 834 L 830 833 L 842 846 L 846 848 L 854 848 L 857 845 L 857 841 L 845 824 L 833 797 L 805 771 Z',
+  },
+  // LEFT THIGH (back)
+  {
+    id: 'l-thigh-back', label: 'Left Thigh', side: 'left', anatomyGroup: 'thigh',
+    tooltipX: 420, tooltipY: 910,
+    svgPath: 'M 372 792 L 366 848 L 366 892 L 374 943 L 389 1003 L 391 1033 L 393 1034 L 410 1027 L 429 1025 L 448 1028 L 461 1034 L 471 1041 L 478 996 L 500 903 L 505 863 L 505 840 L 502 839 L 486 844 L 466 846 L 450 845 L 432 841 L 412 832 L 399 823 L 384 808 L 374 792 Z',
+  },
+  // RIGHT THIGH (back)
+  {
+    id: 'r-thigh-back', label: 'Right Thigh', side: 'right', anatomyGroup: 'thigh',
+    tooltipX: 590, tooltipY: 910,
+    svgPath: 'M 647 792 L 637 806 L 624 820 L 609 831 L 593 839 L 571 845 L 557 846 L 540 845 L 516 839 L 516 865 L 521 903 L 541 990 L 549 1041 L 563 1032 L 582 1026 L 605 1026 L 628 1034 L 631 999 L 646 939 L 653 892 L 653 847 Z',
+  },
+  // LEFT CALF (back)
+  {
+    id: 'l-calf-back', label: 'Left Calf', side: 'left', anatomyGroup: 'calf',
+    tooltipX: 420, tooltipY: 1175,
+    svgPath: 'M 434 1029 L 409 1031 L 392 1038 L 391 1040 L 389 1074 L 379 1118 L 375 1152 L 378 1195 L 392 1270 L 394 1292 L 394 1319 L 414 1322 L 439 1319 L 439 1296 L 442 1271 L 450 1236 L 465 1187 L 468 1163 L 467 1132 L 464 1114 L 464 1086 L 471 1046 L 467 1042 L 453 1034 Z',
+  },
+  // RIGHT CALF (back)
+  {
+    id: 'r-calf-back', label: 'Right Calf', side: 'right', anatomyGroup: 'calf',
+    tooltipX: 595, tooltipY: 1175,
+    svgPath: 'M 586 1029 L 567 1034 L 556 1040 L 549 1046 L 556 1089 L 556 1111 L 552 1143 L 552 1166 L 555 1188 L 569 1235 L 576 1266 L 579 1289 L 580 1319 L 587 1321 L 605 1322 L 621 1320 L 625 1318 L 624 1298 L 626 1275 L 640 1205 L 644 1176 L 644 1139 L 632 1079 L 628 1038 L 607 1030 Z',
+  },
+  // LEFT FOOT (back)
+  {
+    id: 'l-foot-back', label: 'Left Foot', side: 'left', anatomyGroup: 'foot',
+    tooltipX: 400, tooltipY: 1370,
+    svgPath: 'M 439 1324 L 412 1326 L 411 1325 L 402 1325 L 401 1324 L 394 1323 L 393 1326 L 393 1335 L 392 1336 L 392 1348 L 391 1349 L 391 1364 L 387 1376 L 367 1418 L 359 1426 L 354 1429 L 350 1433 L 346 1441 L 346 1449 L 347 1452 L 350 1456 L 353 1458 L 355 1458 L 360 1463 L 364 1465 L 371 1465 L 376 1468 L 407 1469 L 418 1465 L 427 1457 L 430 1449 L 430 1433 L 431 1432 L 432 1426 L 435 1420 L 445 1409 L 448 1401 L 448 1382 L 447 1381 L 446 1374 L 442 1365 L 442 1360 L 441 1359 L 441 1340 L 440 1339 L 440 1334 L 439 1333 Z',
+  },
+  // RIGHT FOOT (back)
+  {
+    id: 'r-foot-back', label: 'Right Foot', side: 'right', anatomyGroup: 'foot',
+    tooltipX: 625, tooltipY: 1370,
+    svgPath: 'M 580 1324 L 579 1327 L 579 1333 L 577 1339 L 576 1364 L 571 1377 L 570 1390 L 569 1392 L 570 1393 L 570 1401 L 575 1411 L 581 1417 L 586 1426 L 588 1432 L 588 1448 L 591 1456 L 598 1463 L 608 1468 L 611 1468 L 612 1469 L 637 1469 L 638 1468 L 642 1468 L 647 1465 L 654 1465 L 660 1462 L 663 1458 L 665 1458 L 668 1456 L 671 1452 L 672 1449 L 672 1441 L 670 1435 L 663 1428 L 657 1424 L 649 1414 L 646 1408 L 646 1406 L 641 1397 L 639 1390 L 634 1381 L 634 1379 L 632 1376 L 632 1374 L 628 1365 L 628 1355 L 627 1354 L 627 1346 L 626 1345 L 626 1338 L 625 1337 L 625 1324 L 624 1323 L 616 1324 L 615 1325 L 587 1325 L 586 1324 Z',
+  },
+];
+
 // ─── Component ────────────────────────────────────────────────────────────────
 interface Props {
   selectedRegions: SelectedRegion[];
@@ -159,7 +271,8 @@ export default function BodyMapScreen({
   const [view, setView] = useState<'front' | 'back'>('front');
   const selectedIds = selectedRegions.map(s => s.region.id);
   const count = selectedRegions.length;
-  const hoveredRegion = BODY_REGIONS.find(r => r.id === hoveredId) ?? null;
+  const activeRegions = view === 'front' ? BODY_REGIONS : BACK_BODY_REGIONS;
+  const hoveredRegion = activeRegions.find(r => r.id === hoveredId) ?? null;
 
   const regionFill = (r: BodyRegion): string => {
     if (selectedIds.includes(r.id)) return C.selected;
@@ -232,8 +345,8 @@ export default function BodyMapScreen({
             style={{ width: '100%', maxWidth: 240, height: 'auto', maxHeight: '100%', display: 'block' }}
             onMouseLeave={() => setHoveredId(null)}
           >
-            {/* Region paths — official SVG body shapes */}
-            {BODY_REGIONS.map(r => (
+            {/* Region paths — front or back depending on toggle */}
+            {(view === 'front' ? BODY_REGIONS : BACK_BODY_REGIONS).map(r => (
               <path
                 key={r.id}
                 d={r.svgPath}
@@ -248,16 +361,18 @@ export default function BodyMapScreen({
               />
             ))}
 
-            {/* Severity dots on selected regions */}
-            {selectedRegions.map(sr => {
-              const lvl = sr.painLevel ? SEVERITY_COLORS[sr.painLevel] : null;
-              return (
-                <g key={`dot-${sr.region.id}`} pointerEvents="none">
-                  <circle cx={sr.region.tooltipX} cy={sr.region.tooltipY} r={22} fill="#FFF" opacity={0.9} />
-                  <circle cx={sr.region.tooltipX} cy={sr.region.tooltipY} r={16} fill={lvl?.dot ?? C.selected} />
-                </g>
-              );
-            })}
+            {/* Severity dots — only for regions visible in current view */}
+            {selectedRegions
+              .filter(sr => (view === 'front' ? BODY_REGIONS : BACK_BODY_REGIONS).some(r => r.id === sr.region.id))
+              .map(sr => {
+                const lvl = sr.painLevel ? SEVERITY_COLORS[sr.painLevel] : null;
+                return (
+                  <g key={`dot-${sr.region.id}`} pointerEvents="none">
+                    <circle cx={sr.region.tooltipX} cy={sr.region.tooltipY} r={22} fill="#FFF" opacity={0.9} />
+                    <circle cx={sr.region.tooltipX} cy={sr.region.tooltipY} r={16} fill={lvl?.dot ?? C.selected} />
+                  </g>
+                );
+              })}
 
             {/* Hover tooltip */}
             {hoveredId && hoveredRegion && !selectedIds.includes(hoveredId) && (() => {
