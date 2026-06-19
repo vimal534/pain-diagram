@@ -5,9 +5,11 @@ export default function StatusBar() {
   return (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '14px 28px 6px', flexShrink: 0,
+      padding: '16px 28px 4px', flexShrink: 0, height: 54,
     }}>
       <span style={{ fontFamily: font.body, fontWeight: 600, fontSize: 15, color: colors.text }}>9:41</span>
+      {/* Centre gap — Dynamic Island sits here in the physical frame */}
+      <div style={{ width: 130 }} />
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         {/* Signal */}
         <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
