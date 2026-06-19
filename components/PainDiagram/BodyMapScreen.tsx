@@ -339,10 +339,10 @@ export default function BodyMapScreen({
         </div>
 
         {/* SVG body — uses official SVG paths, viewBox 0 0 1023 1537 */}
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '4px 8px 0', minHeight: 0, overflow: 'hidden' }}>
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '4px 0 0', minHeight: 0, overflow: 'hidden' }}>
           <svg
             viewBox="0 0 1023 1537"
-            style={{ width: '100%', maxWidth: 240, height: 'auto', maxHeight: '100%', display: 'block' }}
+            style={{ height: '100%', width: 'auto', maxWidth: '100%', display: 'block' }}
             onMouseLeave={() => setHoveredId(null)}
           >
             {/* Region paths — front or back depending on toggle */}
