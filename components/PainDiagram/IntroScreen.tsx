@@ -1,5 +1,6 @@
 import React from 'react';
 import { colors, radius, shadow, font } from './tokens';
+import StatusBar from './StatusBar';
 
 const YOSI_LOGO = 'https://www.figma.com/api/mcp/asset/82ce2c55-cf96-487b-ad3b-78d0c4cdecef';
 
@@ -29,7 +30,7 @@ export default function IntroScreen({ onStart }: Props) {
   return (
     <div
       style={{
-        backgroundColor: colors.bg,
+        backgroundColor: '#FFFFFF',
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
@@ -178,7 +179,7 @@ export default function IntroScreen({ onStart }: Props) {
       </div>
 
       {/* CTA */}
-      <div style={{ padding: '16px 20px 32px', backgroundColor: colors.bg }}>
+      <div style={{ padding: '16px 20px 32px', backgroundColor: '#FFFFFF', borderTop: `1px solid ${colors.border}` }}>
         <button
           onClick={onStart}
           style={{
@@ -212,25 +213,3 @@ export default function IntroScreen({ onStart }: Props) {
   );
 }
 
-function StatusBar() {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '14px 24px 8px',
-        flexShrink: 0,
-      }}
-    >
-      <span style={{ fontFamily: font.body, fontWeight: 600, fontSize: 15, color: colors.text }}>
-        9:41
-      </span>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span style={{ fontSize: 12 }}>▐▐▐</span>
-        <span style={{ fontSize: 12 }}>WiFi</span>
-        <span style={{ fontSize: 12 }}>🔋</span>
-      </div>
-    </div>
-  );
-}

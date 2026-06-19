@@ -8,9 +8,6 @@ export default function App() {
         console.log('Pain diagram submitted:', state);
         alert('Submitted! Check console for data.');
       }}
-      onBack={() => {
-        console.log('Back pressed from root');
-      }}
     />
   );
 }
