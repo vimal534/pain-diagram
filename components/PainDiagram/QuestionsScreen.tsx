@@ -59,7 +59,7 @@ export default function QuestionsScreen({ regions, editingRegionId, onUpdate, on
   const factors = ANATOMY_FACTORS[sr?.region.anatomyGroup ?? ''] ?? ['Movement', 'Exercise', 'At rest', 'Morning stiffness', 'After activity'];
 
   const hasAnswer = sr && (
-    sr.aggravatingFactors.length > 0 || sr.starts.length > 0 ||
+    sr.painLevel !== null || sr.aggravatingFactors.length > 0 || sr.starts.length > 0 ||
     sr.duration !== null || sr.pattern !== null || sr.dailyImpact !== null
   );
 
@@ -163,27 +163,51 @@ export default function QuestionsScreen({ regions, editingRegionId, onUpdate, on
         onScroll={e => setScrolled((e.currentTarget as HTMLDivElement).scrollTop > 2)}
         style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 16px' }}
       >
-        <QuestionCard ref={el => { questionRefs.current[0] = el; }} label={`What aggravates your ${sr.region.label.toLowerCase()} pain?`}>
+        {/* Pain severity — editable here so Edit Details flow can update it */}
+        <QuestionCard ref={el => { questionRefs.current[0] = el; }} label="How severe is the pain?">
+          <div style={{ display: 'flex', gap: 8 }}>
+            {(['mild', 'moderate', 'severe'] as const).map(level => {
+              const s = SEVERITY_COLORS[level];
+              const active = sr.painLevel === level;
+              return (
+                <button key={level} onClick={() => onUpdate({ ...sr, painLevel: sr.painLevel === level ? null : level })} style={{
+                  flex: 1, padding: '11px 8px', borderRadius: 999, outline: 'none', cursor: 'pointer',
+                  border: `1.5px solid ${active ? s.border : '#E5E7EB'}`,
+                  backgroundColor: active ? s.bg : '#FFFFFF',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+                  transition: 'all 0.15s',
+                }}>
+                  <span style={{ width: 9, height: 9, borderRadius: '50%', backgroundColor: s.dot, display: 'inline-block', flexShrink: 0 }} />
+                  <span style={{ fontFamily: font.body, fontWeight: active ? 600 : 400, fontSize: 14, color: active ? s.text : colors.text }}>
+                    {level.charAt(0).toUpperCase() + level.slice(1)}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </QuestionCard>
+
+        <QuestionCard ref={el => { questionRefs.current[1] = el; }} label={`What aggravates your ${sr.region.label.toLowerCase()} pain?`}>
           <ChipGroup options={factors} selected={sr.aggravatingFactors}
             onToggle={v => onUpdate({ ...sr, aggravatingFactors: toggle(sr.aggravatingFactors, v) })} />
         </QuestionCard>
 
-        <QuestionCard ref={el => { questionRefs.current[1] = el; }} label="How did the pain start?">
+        <QuestionCard ref={el => { questionRefs.current[2] = el; }} label="How did the pain start?">
           <ChipGroup options={PAIN_STARTS} selected={sr.starts}
             onToggle={v => onUpdate({ ...sr, starts: toggle(sr.starts, v as PainStart) })} />
         </QuestionCard>
 
-        <QuestionCard ref={el => { questionRefs.current[2] = el; }} label="How long have you had this pain?">
+        <QuestionCard ref={el => { questionRefs.current[3] = el; }} label="How long have you had this pain?">
           <ChipGroup options={DURATIONS} selected={sr.duration ? [sr.duration] : []}
             onToggle={v => onUpdate({ ...sr, duration: single(sr.duration, v as Duration) })} />
         </QuestionCard>
 
-        <QuestionCard ref={el => { questionRefs.current[3] = el; }} label="Is it getting better or worse?">
+        <QuestionCard ref={el => { questionRefs.current[4] = el; }} label="Is it getting better or worse?">
           <ChipGroup options={PATTERNS} selected={sr.pattern ? [sr.pattern] : []}
             onToggle={v => onUpdate({ ...sr, pattern: single(sr.pattern, v as Pattern) })} />
         </QuestionCard>
 
-        <QuestionCard ref={el => { questionRefs.current[4] = el; }} label="How much does it affect daily activities?">
+        <QuestionCard ref={el => { questionRefs.current[5] = el; }} label="How much does it affect daily activities?">
           <ChipGroup options={IMPACTS} selected={sr.dailyImpact ? [sr.dailyImpact] : []}
             onToggle={v => onUpdate({ ...sr, dailyImpact: single(sr.dailyImpact, v as DailyImpact) })} />
         </QuestionCard>
