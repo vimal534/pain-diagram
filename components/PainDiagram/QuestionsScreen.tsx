@@ -50,7 +50,9 @@ export default function QuestionsScreen({ regions, editingRegionId, onUpdate, on
     : 0;
   const [currentIdx, setCurrentIdx] = useState(initialIdx);
   const [scrolled, setScrolled] = useState(false);
+  const [activeQuestion, setActiveQuestion] = useState(1);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const questionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const isLast = currentIdx === orderedRegions.length - 1;
   const sr = orderedRegions[currentIdx];
@@ -104,7 +106,7 @@ export default function QuestionsScreen({ regions, editingRegionId, onUpdate, on
               Tell us about your pain.
             </h1>
             <p style={{ margin: '3px 0 0', fontFamily: font.body, fontSize: 13, color: colors.textSecondary }}>
-              Area {currentIdx + 1} of {orderedRegions.length}
+              Question {activeQuestion} of 5
             </p>
           </div>
 
@@ -149,30 +151,37 @@ export default function QuestionsScreen({ regions, editingRegionId, onUpdate, on
       {/* Scrollable questions for current area only */}
       <div
         ref={scrollRef}
-        onScroll={e => setScrolled((e.currentTarget as HTMLDivElement).scrollTop > 2)}
+        onScroll={e => {
+          const el = e.currentTarget as HTMLDivElement;
+          setScrolled(el.scrollTop > 2);
+          // Track which question card is nearest the top
+          const offsets = questionRefs.current.map(r => r ? r.getBoundingClientRect().top : Infinity);
+          const closest = offsets.reduce((best, top, i) => top <= 80 ? i : best, 0);
+          setActiveQuestion(closest + 1);
+        }}
         style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 16px' }}
       >
-        <QuestionCard label={`What aggravates your ${sr.region.label.toLowerCase()} pain?`}>
+        <QuestionCard ref={el => { questionRefs.current[0] = el; }} label={`What aggravates your ${sr.region.label.toLowerCase()} pain?`}>
           <ChipGroup options={factors} selected={sr.aggravatingFactors}
             onToggle={v => onUpdate({ ...sr, aggravatingFactors: toggle(sr.aggravatingFactors, v) })} />
         </QuestionCard>
 
-        <QuestionCard label="How did the pain start?">
+        <QuestionCard ref={el => { questionRefs.current[1] = el; }} label="How did the pain start?">
           <ChipGroup options={PAIN_STARTS} selected={sr.starts}
             onToggle={v => onUpdate({ ...sr, starts: toggle(sr.starts, v as PainStart) })} />
         </QuestionCard>
 
-        <QuestionCard label="How long have you had this pain?">
+        <QuestionCard ref={el => { questionRefs.current[2] = el; }} label="How long have you had this pain?">
           <ChipGroup options={DURATIONS} selected={sr.duration ? [sr.duration] : []}
             onToggle={v => onUpdate({ ...sr, duration: single(sr.duration, v as Duration) })} />
         </QuestionCard>
 
-        <QuestionCard label="Is it getting better or worse?">
+        <QuestionCard ref={el => { questionRefs.current[3] = el; }} label="Is it getting better or worse?">
           <ChipGroup options={PATTERNS} selected={sr.pattern ? [sr.pattern] : []}
             onToggle={v => onUpdate({ ...sr, pattern: single(sr.pattern, v as Pattern) })} />
         </QuestionCard>
 
-        <QuestionCard label="How much does it affect daily activities?">
+        <QuestionCard ref={el => { questionRefs.current[4] = el; }} label="How much does it affect daily activities?">
           <ChipGroup options={IMPACTS} selected={sr.dailyImpact ? [sr.dailyImpact] : []}
             onToggle={v => onUpdate({ ...sr, dailyImpact: single(sr.dailyImpact, v as DailyImpact) })} />
         </QuestionCard>
@@ -193,9 +202,10 @@ export default function QuestionsScreen({ regions, editingRegionId, onUpdate, on
   );
 }
 
-function QuestionCard({ label, children }: { label: string; children: React.ReactNode }) {
+const QuestionCard = React.forwardRef<HTMLDivElement, { label: string; children: React.ReactNode }>(
+  function QuestionCard({ label, children }, ref) {
   return (
-    <div style={{
+    <div ref={ref} style={{
       backgroundColor: '#FFFFFF', borderRadius: 18,
       boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 4px 14px rgba(0,0,0,0.06)',
       marginBottom: 12, overflow: 'hidden',
@@ -211,7 +221,7 @@ function QuestionCard({ label, children }: { label: string; children: React.Reac
       </div>
     </div>
   );
-}
+});
 
 function ChipGroup({ options, selected, onToggle }: { options: string[]; selected: string[]; onToggle: (v: string) => void }) {
   return (
