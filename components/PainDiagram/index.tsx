@@ -11,6 +11,7 @@ const initial: AppState = {
   step: 'intro',
   selectedRegions: [],
   editingRegionId: null,
+  editSource: null,
   successToast: null,
 };
 
@@ -35,6 +36,7 @@ export default function PainDiagram({ onComplete }: Props) {
       return {
         ...s,
         editingRegionId: region.id,
+        editSource: 'bodymap',
         selectedRegions: alreadyIn ? s.selectedRegions : [...s.selectedRegions, sr],
       };
     });
@@ -47,18 +49,27 @@ export default function PainDiagram({ onComplete }: Props) {
     }));
   };
 
+  // After PainDetailSheet "Next →": always go to QuestionsScreen, keep editingRegionId for pre-population
   const handleSheetSave = () => {
-    setState(s => ({ ...s, editingRegionId: null, step: 'questions' }));
+    setState(s => ({ ...s, step: 'questions' }));
   };
 
   const handleSheetRemove = () => {
     const id = state.editingRegionId;
-    setState(s => ({
-      ...s,
-      editingRegionId: null,
-      selectedRegions: s.selectedRegions.filter(r => r.region.id !== id),
-      successToast: null,
-    }));
+    setState(s => {
+      const remaining = s.selectedRegions.filter(r => r.region.id !== id);
+      return {
+        ...s,
+        editingRegionId: null,
+        editSource: null,
+        selectedRegions: remaining,
+        successToast: null,
+        // If editing from review and regions remain, go back to review
+        step: s.editSource === 'review'
+          ? (remaining.length === 0 ? 'bodymap' : 'review')
+          : s.step,
+      };
+    });
   };
 
   const handleSheetClose = () => {
@@ -69,7 +80,9 @@ export default function PainDiagram({ onComplete }: Props) {
       return {
         ...s,
         editingRegionId: null,
-        selectedRegions: wasSaved
+        editSource: null,
+        // If from review, stay on review. If from bodymap, remove unsaved region.
+        selectedRegions: (s.editSource === 'review' || wasSaved)
           ? s.selectedRegions
           : s.selectedRegions.filter(r => r.region.id !== id),
       };
@@ -83,12 +96,29 @@ export default function PainDiagram({ onComplete }: Props) {
     }));
   };
 
+  const handleQuestionsBack = () => {
+    // If we came from review edit flow, go back to review; otherwise bodymap
+    if (state.editSource === 'review') {
+      setState(s => ({ ...s, step: 'review', editingRegionId: null, editSource: null }));
+    } else {
+      go('bodymap');
+    }
+  };
+
+  const handleQuestionsNext = () => {
+    setState(s => ({ ...s, step: 'review', editingRegionId: null, editSource: null }));
+  };
+
   const handleDeleteRegion = (id: string) => {
     setState(s => {
       const remaining = s.selectedRegions.filter(r => r.region.id !== id);
       return { ...s, selectedRegions: remaining, step: remaining.length === 0 ? 'bodymap' : 'review' };
     });
   };
+
+  // Show PainDetailSheet over bodymap OR over review (edit flow)
+  const showSheet = state.editingRegionId && editingRegion &&
+    (state.step === 'bodymap' || (state.step === 'review' && state.editSource === 'review'));
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', backgroundColor: '#FFFFFF' }}>
@@ -108,9 +138,20 @@ export default function PainDiagram({ onComplete }: Props) {
         />
       )}
 
-      {state.step === 'bodymap' && state.editingRegionId && editingRegion && (
+      {state.step === 'review' && (
+        <ReviewScreen
+          selectedRegions={state.selectedRegions}
+          onBack={() => go('questions')}
+          onEditRegion={id => setState(s => ({ ...s, editingRegionId: id, editSource: 'review' }))}
+          onDeleteRegion={handleDeleteRegion}
+          onAddAnother={() => go('bodymap')}
+          onSubmit={() => go('thankyou')}
+        />
+      )}
+
+      {showSheet && (
         <PainDetailSheet
-          region={editingRegion}
+          region={editingRegion!}
           onUpdate={handleSheetUpdate}
           onRemove={handleSheetRemove}
           onSave={handleSheetSave}
@@ -123,19 +164,8 @@ export default function PainDiagram({ onComplete }: Props) {
           regions={state.selectedRegions}
           editingRegionId={state.editingRegionId}
           onUpdate={handleQuestionsUpdate}
-          onBack={() => go('bodymap')}
-          onNext={() => go('review')}
-        />
-      )}
-
-      {state.step === 'review' && (
-        <ReviewScreen
-          selectedRegions={state.selectedRegions}
-          onBack={() => go('questions')}
-          onEditRegion={id => setState(s => ({ ...s, editingRegionId: id, step: 'questions' }))}
-          onDeleteRegion={handleDeleteRegion}
-          onAddAnother={() => go('bodymap')}
-          onSubmit={() => go('thankyou')}
+          onBack={handleQuestionsBack}
+          onNext={handleQuestionsNext}
         />
       )}
 

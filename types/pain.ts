@@ -34,6 +34,7 @@ export interface AppState {
   step: AppStep;
   selectedRegions: SelectedRegion[];
   editingRegionId: string | null;
+  editSource: 'bodymap' | 'review' | null;
   successToast: string | null;
 }
 
