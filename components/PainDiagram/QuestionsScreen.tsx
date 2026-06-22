@@ -71,7 +71,7 @@ export default function QuestionsScreen({ regions, editingRegionId, onUpdate, on
     sr.pattern !== null,
     sr.dailyImpact !== null,
   ].filter(Boolean).length : 0;
-  const activeQuestion = Math.min(5, answeredCount + 1);
+  const activeQuestion = Math.min(6, answeredCount + 1);
 
   const handleNext = () => {
     if (isLast || hasAnswer) {
@@ -115,7 +115,7 @@ export default function QuestionsScreen({ regions, editingRegionId, onUpdate, on
               Tell us about your pain.
             </h1>
             <p style={{ margin: '3px 0 0', fontFamily: font.body, fontSize: 13, color: colors.textSecondary }}>
-              Question {activeQuestion} of 5
+              Question {activeQuestion} of 6
             </p>
           </div>
 
