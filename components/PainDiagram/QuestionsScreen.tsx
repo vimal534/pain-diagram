@@ -50,7 +50,6 @@ export default function QuestionsScreen({ regions, editingRegionId, onUpdate, on
     : 0;
   const [currentIdx, setCurrentIdx] = useState(initialIdx);
   const [scrolled, setScrolled] = useState(false);
-  const [activeQuestion, setActiveQuestion] = useState(1);
   const scrollRef = useRef<HTMLDivElement>(null);
   const questionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -63,6 +62,16 @@ export default function QuestionsScreen({ regions, editingRegionId, onUpdate, on
     sr.aggravatingFactors.length > 0 || sr.starts.length > 0 ||
     sr.duration !== null || sr.pattern !== null || sr.dailyImpact !== null
   );
+
+  // Advance counter each time a question gets its first answer
+  const answeredCount = sr ? [
+    sr.aggravatingFactors.length > 0,
+    sr.starts.length > 0,
+    sr.duration !== null,
+    sr.pattern !== null,
+    sr.dailyImpact !== null,
+  ].filter(Boolean).length : 0;
+  const activeQuestion = Math.min(5, answeredCount + 1);
 
   const handleNext = () => {
     if (isLast || hasAnswer) {
@@ -151,14 +160,7 @@ export default function QuestionsScreen({ regions, editingRegionId, onUpdate, on
       {/* Scrollable questions for current area only */}
       <div
         ref={scrollRef}
-        onScroll={e => {
-          const el = e.currentTarget as HTMLDivElement;
-          setScrolled(el.scrollTop > 2);
-          // Track which question card is nearest the top
-          const offsets = questionRefs.current.map(r => r ? r.getBoundingClientRect().top : Infinity);
-          const closest = offsets.reduce((best, top, i) => top <= 80 ? i : best, 0);
-          setActiveQuestion(closest + 1);
-        }}
+        onScroll={e => setScrolled((e.currentTarget as HTMLDivElement).scrollTop > 2)}
         style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 16px' }}
       >
         <QuestionCard ref={el => { questionRefs.current[0] = el; }} label={`What aggravates your ${sr.region.label.toLowerCase()} pain?`}>
