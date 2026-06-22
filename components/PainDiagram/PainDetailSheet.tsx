@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { SelectedRegion, ExactSpot, PainLevel, PainDescriptor } from '../../types/pain';
-import { colors, radius, shadow, font, SEVERITY_COLORS } from './tokens';
+import { colors, radius, font, SEVERITY_COLORS } from './tokens';
 
 const EXACT_SPOTS: ExactSpot[] = ['Front', 'Inner', 'Outer', 'Back', 'Deep inside'];
 const DESCRIPTORS: PainDescriptor[] = ['Sharp', 'Burning', 'Stiffness', 'Throbbing', 'Tingling', 'Numbness'];
@@ -30,71 +30,85 @@ export default function PainDetailSheet({ region, onUpdate, onRemove, onSave, on
     <>
       {/* Scrim */}
       <div onClick={onClose} style={{
-        position:'absolute', inset:0, zIndex:30,
-        backgroundColor:'rgba(0,0,0,0.35)',
-        opacity: visible ? 1 : 0, transition:'opacity 0.28s ease',
+        position: 'absolute', inset: 0, zIndex: 30,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        opacity: visible ? 1 : 0, transition: 'opacity 0.28s ease',
       }} />
 
       {/* Sheet */}
       <div style={{
-        position:'absolute', bottom:0, left:0, right:0, zIndex:40,
-        backgroundColor:'#FFF',
-        borderRadius:`${radius.sheet}px ${radius.sheet}px 0 0`,
-        boxShadow: shadow.sheet,
+        position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 40,
+        backgroundColor: '#FFFFFF',
+        borderRadius: '24px 24px 0 0',
+        boxShadow: '0 -4px 32px rgba(0,0,0,0.12)',
         transform: visible ? 'translateY(0)' : 'translateY(100%)',
-        transition:'transform 0.36s cubic-bezier(0.32,0.72,0,1)',
-        display:'flex', flexDirection:'column', maxHeight:'88%',
+        transition: 'transform 0.36s cubic-bezier(0.32,0.72,0,1)',
+        display: 'flex', flexDirection: 'column', maxHeight: '92%',
       }}>
         {/* Handle */}
-        <div style={{ display:'flex', justifyContent:'center', paddingTop:12, paddingBottom:2 }}>
-          <div style={{ width:40, height:4, borderRadius:2, backgroundColor: colors.border }} />
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 0' }}>
+          <div style={{ width: 32, height: 3.5, borderRadius: 999, backgroundColor: '#E5E7EB' }} />
         </div>
 
         {/* Header */}
-        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', padding:'10px 20px 0' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px 12px' }}>
           <div>
-            <p style={{ margin:0, fontFamily: font.heading, fontWeight:800, fontSize:19, color: colors.text }}>{region.region.label}</p>
-            <p style={{ margin:'3px 0 0', fontFamily: font.body, fontSize:13, color: colors.textSecondary }}>Refine the spot & how it feels</p>
+            <p style={{ margin: 0, fontFamily: font.heading, fontWeight: 800, fontSize: 20, color: colors.text, letterSpacing: '-0.3px' }}>
+              {region.region.label}
+            </p>
+            <p style={{ margin: '3px 0 0', fontFamily: font.body, fontSize: 13, color: colors.textSecondary }}>
+              Tell us more about this pain area
+            </p>
           </div>
           <button onClick={onClose} style={{
-            width:34, height:34, borderRadius:'50%', backgroundColor: colors.bg,
-            border:'none', cursor:'pointer', fontSize:20, color: colors.textSecondary,
-            display:'flex', alignItems:'center', justifyContent:'center',
+            width: 30, height: 30, borderRadius: '50%', backgroundColor: '#F3F4F6',
+            border: 'none', cursor: 'pointer', fontSize: 16, color: '#6B7280',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
           }}>×</button>
         </div>
 
+        <div style={{ height: 1, backgroundColor: '#F3F4F6' }} />
+
         {/* Scrollable body */}
-        <div style={{ flex:1, overflowY:'auto', padding:'0 20px' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '20px 20px 0' }}>
 
           {/* EXACT SPOT */}
-          <SectionLabel>Exact Spot</SectionLabel>
-          <div style={{ display:'flex', flexWrap:'wrap', gap:8, paddingTop:10 }}>
+          <Section label="Where exactly?" />
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
             {EXACT_SPOTS.map(spot => {
               const active = region.exactSpot === spot;
               return (
-                <Chip key={spot} label={spot} active={active} onClick={() => setSpot(spot)}
-                  activeBg={colors.selectedBg} activeBorder={colors.primary} activeText={colors.primary} />
+                <button key={spot} onClick={() => setSpot(spot)} style={{
+                  padding: '9px 18px', borderRadius: 999, outline: 'none', cursor: 'pointer',
+                  border: `1.5px solid ${active ? colors.primary : '#E5E7EB'}`,
+                  backgroundColor: active ? 'rgba(36,135,245,0.06)' : '#FFFFFF',
+                  transition: 'all 0.15s',
+                }}>
+                  <span style={{ fontFamily: font.body, fontWeight: active ? 600 : 400, fontSize: 14, color: active ? colors.primary : colors.text }}>
+                    {active ? `✓ ${spot}` : spot}
+                  </span>
+                </button>
               );
             })}
           </div>
 
           {/* PAIN SEVERITY */}
-          <div style={{ marginTop:22 }}>
-            <SectionLabel>Pain Severity <Req /></SectionLabel>
-            <div style={{ display:'flex', gap:8, paddingTop:10 }}>
-              {(['mild','moderate','severe'] as PainLevel[]).map(level => {
+          <div style={{ marginTop: 24 }}>
+            <Section label="Pain level" required />
+            <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+              {(['mild', 'moderate', 'severe'] as PainLevel[]).map(level => {
                 const s = SEVERITY_COLORS[level];
                 const active = region.painLevel === level;
                 return (
                   <button key={level} onClick={() => setLevel(level)} style={{
-                    flex:1, padding:'12px 4px', borderRadius: radius.chip, outline:'none', cursor:'pointer',
-                    border:`1.5px solid ${active ? s.border : colors.border}`,
-                    backgroundColor: active ? s.bg : '#FFF',
-                    display:'flex', alignItems:'center', justifyContent:'center', gap:7, transition:'all 0.15s',
-                    minHeight:48,
+                    flex: 1, padding: '11px 8px', borderRadius: 999, outline: 'none', cursor: 'pointer',
+                    border: `1.5px solid ${active ? s.border : '#E5E7EB'}`,
+                    backgroundColor: active ? s.bg : '#FFFFFF',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+                    transition: 'all 0.15s',
                   }}>
-                    <span style={{ width:10, height:10, borderRadius:'50%', backgroundColor: s.dot, display:'inline-block', flexShrink:0 }} />
-                    <span style={{ fontFamily: font.heading, fontWeight:700, fontSize:14, color: active ? s.text : colors.textSecondary }}>
+                    <span style={{ width: 9, height: 9, borderRadius: '50%', backgroundColor: s.dot, display: 'inline-block', flexShrink: 0 }} />
+                    <span style={{ fontFamily: font.body, fontWeight: active ? 600 : 400, fontSize: 14, color: active ? s.text : colors.text }}>
                       {level.charAt(0).toUpperCase() + level.slice(1)}
                     </span>
                   </button>
@@ -104,38 +118,49 @@ export default function PainDetailSheet({ region, onUpdate, onRemove, onSave, on
           </div>
 
           {/* SYMPTOMS */}
-          <div style={{ marginTop:22, marginBottom:28 }}>
-            <SectionLabel>Symptoms <span style={{ fontWeight:400, textTransform:'lowercase', letterSpacing:0 }}>(select all that apply)</span></SectionLabel>
-            <div style={{ display:'flex', flexWrap:'wrap', gap:8, paddingTop:10 }}>
+          <div style={{ marginTop: 24, marginBottom: 28 }}>
+            <Section label="How does it feel?" sub="Select all that apply" />
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
               {DESCRIPTORS.map(desc => {
                 const active = region.descriptors.includes(desc);
                 return (
-                  <Chip key={desc} label={desc} active={active} onClick={() => toggleDesc(desc)}
-                    activeBg={colors.selectedBg} activeBorder={colors.primary} activeText={colors.primary} />
+                  <button key={desc} onClick={() => toggleDesc(desc)} style={{
+                    padding: '9px 18px', borderRadius: 999, outline: 'none', cursor: 'pointer',
+                    border: `1.5px solid ${active ? colors.primary : '#E5E7EB'}`,
+                    backgroundColor: active ? 'rgba(36,135,245,0.06)' : '#FFFFFF',
+                    transition: 'all 0.15s',
+                  }}>
+                    <span style={{ fontFamily: font.body, fontWeight: active ? 600 : 400, fontSize: 14, color: active ? colors.primary : colors.text }}>
+                      {active ? `✓ ${desc}` : desc}
+                    </span>
+                  </button>
                 );
               })}
             </div>
           </div>
         </div>
 
-        {/* Footer actions */}
-        <div style={{ padding:'16px 20px 32px', display:'flex', gap:10, borderTop:`1px solid ${colors.bg}` }}>
+        {/* Footer */}
+        <div style={{ padding: '12px 20px 36px', display: 'flex', gap: 10, borderTop: '1px solid #F3F4F6' }}>
           <button onClick={onRemove} style={{
-            flex:'0 0 110px', padding:'15px 0', borderRadius: radius.button,
-            border:'1.5px solid #FECACA', backgroundColor:'transparent', cursor:'pointer',
-            fontFamily: font.heading, fontWeight:700, fontSize:14, color:'#EF4444',
+            flex: '0 0 48px', padding: '15px 0', borderRadius: radius.button,
+            border: '1px solid #FECACA', backgroundColor: '#FFF5F5', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            Remove
+            <svg width="13" height="14" viewBox="0 0 13 14" fill="none">
+              <path d="M1 3H12M4.5 3V2H8.5V3M2 3L3 12H10L11 3H2Z" stroke="#EF4444" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </button>
           <button onClick={onSave} disabled={!canSave} style={{
-            flex:1, padding:'15px 0', borderRadius: radius.button, border:'none',
-            backgroundColor: canSave ? colors.primary : colors.border,
-            cursor: canSave ? 'pointer' : 'not-allowed',
-            boxShadow: canSave ? shadow.button : 'none',
-            fontFamily: font.heading, fontWeight:700, fontSize:16, color:'#FFF',
-            transition:'all 0.18s',
+            flex: 1, padding: '15px 0', borderRadius: radius.button, border: 'none',
+            backgroundColor: canSave ? colors.primary : '#E5E7EB',
+            cursor: canSave ? 'pointer' : 'default',
+            boxShadow: canSave ? '0 4px 14px rgba(36,135,245,0.3)' : 'none',
+            fontFamily: font.heading, fontWeight: 700, fontSize: 15,
+            color: canSave ? '#FFF' : '#9CA3AF',
+            transition: 'all 0.18s',
           }}>
-            Save  ✓
+            Next →
           </button>
         </div>
       </div>
@@ -143,32 +168,13 @@ export default function PainDetailSheet({ region, onUpdate, onRemove, onSave, on
   );
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function Section({ label, required, sub }: { label: string; required?: boolean; sub?: string }) {
   return (
-    <p style={{ margin:'20px 0 0', fontFamily: font.body, fontWeight:600, fontSize:11, letterSpacing:'0.55px', textTransform:'uppercase', color: colors.textMuted }}>
-      {children}
-    </p>
-  );
-}
-
-function Req() {
-  return <span style={{ color: colors.red, marginLeft:2 }}>*</span>;
-}
-
-function Chip({ label, active, onClick, activeBg, activeBorder, activeText }: {
-  label: string; active: boolean; onClick: () => void;
-  activeBg: string; activeBorder: string; activeText: string;
-}) {
-  return (
-    <button onClick={onClick} style={{
-      padding:'10px 16px', borderRadius: radius.chip, outline:'none', cursor:'pointer',
-      border:`1.5px solid ${active ? activeBorder : colors.border}`,
-      backgroundColor: active ? activeBg : '#FFF',
-      transition:'all 0.15s', minHeight:44,
-    }}>
-      <span style={{ fontFamily: font.body, fontWeight:500, fontSize:14, color: active ? activeText : colors.text }}>
-        {active ? `✓ ${label}` : label}
-      </span>
-    </button>
+    <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+      <p style={{ margin: 0, fontFamily: font.body, fontSize: 11, fontWeight: 700, letterSpacing: '0.6px', textTransform: 'uppercase', color: colors.textMuted }}>
+        {label}{required && <span style={{ color: colors.red, marginLeft: 2 }}>*</span>}
+      </p>
+      {sub && <span style={{ fontFamily: font.body, fontSize: 11, color: colors.textMuted, fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>· {sub}</span>}
+    </div>
   );
 }

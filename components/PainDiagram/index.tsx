@@ -48,9 +48,7 @@ export default function PainDiagram({ onComplete }: Props) {
   };
 
   const handleSheetSave = () => {
-    const label = editingRegion?.region.label ?? 'Area';
-    setState(s => ({ ...s, editingRegionId: null, successToast: `${label} saved` }));
-    setTimeout(() => setState(s => ({ ...s, successToast: null })), 3000);
+    setState(s => ({ ...s, editingRegionId: null, step: 'questions' }));
   };
 
   const handleSheetRemove = () => {
@@ -123,6 +121,7 @@ export default function PainDiagram({ onComplete }: Props) {
       {state.step === 'questions' && (
         <QuestionsScreen
           regions={state.selectedRegions}
+          editingRegionId={state.editingRegionId}
           onUpdate={handleQuestionsUpdate}
           onBack={() => go('bodymap')}
           onNext={() => go('review')}

@@ -284,7 +284,7 @@ export default function BodyMapScreen({
   const tooltipW = (label: string) => Math.max(300, label.length * 33 + 80);
 
   return (
-    <div style={{ backgroundColor: C.bg, display: 'flex', flexDirection: 'column', height: '100%', fontFamily: font.heading, position: 'relative' }}>
+    <div style={{ backgroundColor: '#F8FAFC', display: 'flex', flexDirection: 'column', height: '100%', fontFamily: font.heading, position: 'relative' }}>
       <StatusBar />
 
       {/* Success toast */}
@@ -303,37 +303,27 @@ export default function BodyMapScreen({
       </div>
 
       {/* Header */}
-      <div style={{ padding: '4px 20px 8px', display: 'flex', alignItems: 'center', gap: 12 }}>
-        <button onClick={onBack} style={iconBtn}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '10px 16px 12px', backgroundColor: '#FFFFFF', flexShrink: 0 }}>
+        <button onClick={onBack} style={backBtn}>
           <svg width="9" height="16" viewBox="0 0 9 16" fill="none">
             <path d="M8 1L1 8L8 15" stroke={C.text} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
-        <h1 style={{ margin: 0, fontWeight: 800, fontSize: 20, color: C.text, letterSpacing: '-0.3px' }}>Where does it hurt?</h1>
-      </div>
-
-      {/* Info banner */}
-      <div style={{
-        margin: '0 16px 8px', padding: '10px 14px', borderRadius: 12, flexShrink: 0,
-        backgroundColor: '#EFF6FF', border: '1px solid #BFDBFE',
-        display: 'flex', alignItems: 'center', gap: 10,
-      }}>
-        <div style={{ width: 20, height: 20, borderRadius: '50%', backgroundColor: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <span style={{ color: '#FFF', fontSize: 11, fontWeight: 800 }}>i</span>
+        <div style={{ paddingTop: 2 }}>
+          <h1 style={{ margin: 0, fontFamily: font.heading, fontWeight: 800, fontSize: 20, color: C.text, letterSpacing: '-0.3px' }}>Where does it hurt?</h1>
+          <p style={{ margin: '3px 0 0', fontFamily: font.body, fontSize: 13, color: C.sub }}>Select one or more areas</p>
         </div>
-        <p style={{ margin: 0, fontFamily: font.body, fontSize: 13, color: '#1E40AF', fontWeight: 500 }}>
-          Tap on the body to select one or more areas.
-        </p>
       </div>
 
       {/* Body card */}
       <div style={{
-        flex: 1, margin: '0 12px', borderRadius: 20,
-        backgroundColor: '#F8F9FB', border: '1px solid #E5E7EB',
+        flex: 1, margin: '20px 16px 0', borderRadius: 20,
+        backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)',
         display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden',
       }}>
         {/* LEFT / RIGHT labels */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 20px 0', flexShrink: 0 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '20px 20px 0', flexShrink: 0 }}>
           <span style={{ fontFamily: font.body, fontSize: 11, fontWeight: 700, color: '#9CA3AF', letterSpacing: '0.8px' }}>LEFT</span>
           <span style={{ fontFamily: font.body, fontSize: 11, fontWeight: 700, color: '#9CA3AF', letterSpacing: '0.8px' }}>RIGHT</span>
         </div>
@@ -392,7 +382,7 @@ export default function BodyMapScreen({
         </div>
 
         {/* Front / Back toggle */}
-        <div style={{ padding: '6px 20px 12px', display: 'flex', justifyContent: 'center', flexShrink: 0 }}>
+        <div style={{ padding: '6px 20px 20px', display: 'flex', justifyContent: 'center', flexShrink: 0 }}>
           <div style={{ display: 'flex', backgroundColor: '#FFF', borderRadius: 14, border: '1px solid #E5E7EB', padding: 3, gap: 2 }}>
             {(['front', 'back'] as const).map(v => (
               <button key={v} onClick={() => setView(v)} style={{
@@ -453,9 +443,8 @@ export default function BodyMapScreen({
   );
 }
 
-const iconBtn: React.CSSProperties = {
-  width: 38, height: 38, borderRadius: 12, backgroundColor: '#FFF',
-  border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center',
-  justifyContent: 'center', cursor: 'pointer', flexShrink: 0,
-  boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+const backBtn: React.CSSProperties = {
+  width: 32, height: 32, backgroundColor: 'transparent',
+  border: 'none', display: 'flex', alignItems: 'center',
+  justifyContent: 'center', cursor: 'pointer', flexShrink: 0, padding: 0,
 };

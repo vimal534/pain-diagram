@@ -1,20 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { SelectedRegion } from '../../types/pain';
 import { colors, radius, shadow, font, SEVERITY_COLORS } from './tokens';
 import StatusBar from './StatusBar';
-
-const IMPACT_LABELS: Record<string, string> = {
-  None: 'No daily impact',
-  Some: 'Some impact on daily activities',
-  'A lot': 'Significantly limits daily life',
-  Unable: 'Unable to perform normal activities',
-};
-
-const PATTERN_LABELS: Record<string, string> = {
-  Improving: 'Getting better',
-  Stable:    'Staying the same',
-  Worsening: 'Getting worse',
-};
 
 interface Props {
   selectedRegions: SelectedRegion[];
@@ -22,113 +9,95 @@ interface Props {
 }
 
 export default function ThankYouScreen({ selectedRegions, onDone }: Props) {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setVisible(true), 60); return () => clearTimeout(t); }, []);
+
   return (
-    <div style={{ backgroundColor:'#FFFFFF', display:'flex', flexDirection:'column', height:'100%', fontFamily: font.heading }}>
+    <div style={{ backgroundColor: '#F8FAFC', display: 'flex', flexDirection: 'column', height: '100%', fontFamily: font.heading }}>
       <StatusBar />
 
-      {/* Hero */}
-      <div style={{ display:'flex', flexDirection:'column', alignItems:'center', padding:'20px 32px 16px', textAlign:'center' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 16px' }}>
+
+        {/* Hero */}
         <div style={{
-          width:76, height:76, borderRadius:26, backgroundColor: colors.greenBg,
-          border:`2px solid ${colors.green}`, display:'flex', alignItems:'center',
-          justifyContent:'center', fontSize:34, marginBottom:16,
-          boxShadow:'0 0 0 8px rgba(16,185,129,0.08)',
-          color: colors.green,
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          padding: '32px 24px 28px', textAlign: 'center',
+          opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(12px)',
+          transition: 'opacity 0.4s ease, transform 0.4s ease',
         }}>
-          ✓
+          {/* Success ring + checkmark */}
+          <div style={{ position: 'relative', marginBottom: 24 }}>
+            <div style={{
+              width: 88, height: 88, borderRadius: '50%',
+              backgroundColor: colors.greenBg,
+              border: `2.5px solid ${colors.green}`,
+              boxShadow: `0 0 0 10px rgba(16,185,129,0.08), 0 0 0 20px rgba(16,185,129,0.04)`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <svg width="36" height="28" viewBox="0 0 36 28" fill="none">
+                <path
+                  d="M3 14L13 24L33 4"
+                  stroke={colors.green} strokeWidth="3.5"
+                  strokeLinecap="round" strokeLinejoin="round"
+                  strokeDasharray="48"
+                  strokeDashoffset={visible ? 0 : 48}
+                  style={{ transition: 'stroke-dashoffset 0.5s ease 0.2s' }}
+                />
+              </svg>
+            </div>
+          </div>
+
+          <h1 style={{ margin: 0, fontFamily: font.heading, fontWeight: 900, fontSize: 26, color: colors.text, letterSpacing: '-0.5px', lineHeight: 1.2 }}>
+            Thank you!
+          </h1>
+          <p style={{ margin: '10px 0 0', fontFamily: font.body, fontSize: 14, color: colors.textSecondary, lineHeight: 1.65, maxWidth: 280 }}>
+            Your pain assessment has been submitted. Your care team will review this before your appointment.
+          </p>
         </div>
-        <h1 style={{ margin:0, fontWeight:900, fontSize:24, color: colors.text, letterSpacing:'-0.4px' }}>
-          Assessment Complete
-        </h1>
-        <p style={{ margin:'8px 0 0', fontFamily: font.body, fontSize:14, color: colors.textSecondary, lineHeight:1.6, maxWidth:290 }}>
-          Your pain information has been recorded successfully. Your orthopedic provider will review this before your appointment.
-        </p>
-      </div>
 
-      {/* Summary cards */}
-      <div style={{ flex:1, overflowY:'auto', padding:'4px 20px' }}>
-        <p style={{ margin:'0 0 10px', fontFamily: font.body, fontSize:11, fontWeight:700, letterSpacing:'0.6px', textTransform:'uppercase', color: colors.textMuted }}>
-          Pain areas recorded · {selectedRegions.length}
-        </p>
 
-        <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-          {selectedRegions.map(sr => {
-            const lvl = sr.painLevel ? SEVERITY_COLORS[sr.painLevel] : null;
-
-            return (
-              <div key={sr.region.id} style={{
-                backgroundColor:'#FFFFFF', borderRadius:20,
-                border:`1px solid ${colors.border}`,
-                boxShadow:'0 1px 8px rgba(0,0,0,0.05)',
-                padding:'14px 16px',
-              }}>
-                {/* Region title row */}
-                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
-                  <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                    {lvl && <div style={{ width:10, height:10, borderRadius:'50%', backgroundColor: lvl.dot, flexShrink:0 }} />}
-                    <span style={{ fontFamily: font.heading, fontWeight:800, fontSize:15, color: colors.text }}>{sr.region.label}</span>
-                  </div>
-                  <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                    {lvl && (
-                      <span style={{
-                        fontFamily: font.body, fontSize:11, fontWeight:700,
-                        color: lvl.text, backgroundColor: lvl.bg,
-                        border:`1px solid ${lvl.border}`, borderRadius:6, padding:'2px 8px',
-                        textTransform:'capitalize',
-                      }}>
-                        {sr.painLevel} pain
-                      </span>
-                    )}
-                    <div style={{ width:22, height:22, borderRadius:'50%', backgroundColor: colors.greenBg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, color: colors.green, border:`1px solid ${colors.green}` }}>✓</div>
-                  </div>
+        {/* What happens next */}
+        <div style={{
+          backgroundColor: '#FFFFFF', borderRadius: 20,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.05)',
+          overflow: 'hidden',
+          opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(12px)',
+          transition: 'opacity 0.4s ease 0.2s, transform 0.4s ease 0.2s',
+        }}>
+          <div style={{ padding: '14px 16px 10px', borderBottom: '1px solid #F0F1F5' }}>
+            <p style={{ margin: 0, fontFamily: font.body, fontSize: 11, fontWeight: 700, letterSpacing: '0.7px', textTransform: 'uppercase', color: colors.textMuted }}>
+              What happens next
+            </p>
+          </div>
+          <div style={{ padding: '8px 16px 16px' }}>
+            {NEXT_STEPS.map((step, i) => (
+              <div key={i} style={{ display: 'flex', gap: 14, padding: '12px 0', borderBottom: i < NEXT_STEPS.length - 1 ? '1px solid #F0F1F5' : 'none' }}>
+                <div style={{
+                  width: 36, height: 36, borderRadius: 11, flexShrink: 0,
+                  backgroundColor: step.bg, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  {step.icon}
                 </div>
-
-                {/* Detail grid */}
-                <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
-                  {sr.exactSpot && <SummaryLine icon="📍" label="Location" value={sr.exactSpot} />}
-                  {sr.duration && <SummaryLine icon="⏱" label="Duration" value={sr.duration} />}
-                  {sr.pattern && <SummaryLine icon="📈" label="Trend" value={PATTERN_LABELS[sr.pattern] ?? sr.pattern} />}
-                  {sr.dailyImpact && <SummaryLine icon="🏃" label="Daily impact" value={IMPACT_LABELS[sr.dailyImpact] ?? sr.dailyImpact} />}
-                  {sr.descriptors.length > 0 && (
-                    <SummaryLine icon="💬" label="Symptoms" value={sr.descriptors.join(', ')} />
-                  )}
-                  {sr.aggravatingFactors.length > 0 && (
-                    <SummaryLine icon="⚡" label="Aggravated by" value={sr.aggravatingFactors.slice(0, 3).join(', ') + (sr.aggravatingFactors.length > 3 ? ` +${sr.aggravatingFactors.length - 3} more` : '')} />
-                  )}
-                  {sr.starts.length > 0 && (
-                    <SummaryLine icon="🕐" label="How it started" value={sr.starts.join(', ')} />
-                  )}
+                <div style={{ paddingTop: 2 }}>
+                  <p style={{ margin: '0 0 3px', fontFamily: font.heading, fontWeight: 700, fontSize: 13, color: colors.text }}>{step.title}</p>
+                  <p style={{ margin: 0, fontFamily: font.body, fontSize: 12, color: colors.textSecondary, lineHeight: 1.55 }}>{step.desc}</p>
                 </div>
               </div>
-            );
-          })}
-        </div>
-
-        {/* Provider note */}
-        <div style={{
-          marginTop:14, display:'flex', alignItems:'flex-start', gap:12,
-          backgroundColor:'rgba(36,135,245,0.05)', border:`1px solid rgba(36,135,245,0.15)`,
-          borderRadius:16, padding:'14px 16px',
-        }}>
-          <span style={{ fontSize:22, flexShrink:0, marginTop:1 }}>🏥</span>
-          <div>
-            <p style={{ margin:'0 0 3px', fontFamily: font.heading, fontWeight:700, fontSize:13, color: colors.text }}>What happens next?</p>
-            <p style={{ margin:0, fontFamily: font.body, fontSize:13, color: colors.textSecondary, lineHeight:1.55 }}>
-              Your orthopedic specialist will review these pain details before your appointment and may follow up with additional questions.
-            </p>
+            ))}
           </div>
         </div>
 
-        <div style={{ height:16 }} />
       </div>
 
-      {/* Done */}
-      <div style={{ padding:'10px 20px 36px', borderTop:`1px solid ${colors.border}` }}>
+      {/* Done button */}
+      <div style={{
+        padding: '10px 16px 32px', backgroundColor: '#FFFFFF', borderTop: '1px solid #F0F1F5',
+        opacity: visible ? 1 : 0, transition: 'opacity 0.4s ease 0.3s',
+      }}>
         <button onClick={onDone} style={{
-          width:'100%', padding:'17px 0', borderRadius: radius.button, border:'none',
-          background:`linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryDark} 100%)`,
-          cursor:'pointer', boxShadow: shadow.button,
-          fontFamily: font.heading, fontWeight:700, fontSize:16, color:'#FFF',
+          width: '100%', padding: '17px 0', borderRadius: radius.button, border: 'none',
+          backgroundColor: colors.primary, cursor: 'pointer', boxShadow: shadow.button,
+          fontFamily: font.heading, fontWeight: 700, fontSize: 16, color: '#FFF',
         }}>
           Done
         </button>
@@ -137,12 +106,38 @@ export default function ThankYouScreen({ selectedRegions, onDone }: Props) {
   );
 }
 
-function SummaryLine({ icon, label, value }: { icon: string; label: string; value: string }) {
-  return (
-    <div style={{ display:'flex', alignItems:'flex-start', gap:8 }}>
-      <span style={{ fontSize:13, flexShrink:0, marginTop:1 }}>{icon}</span>
-      <span style={{ fontFamily: font.body, fontSize:12, color: colors.textSecondary, flexShrink:0, minWidth:90 }}>{label}:</span>
-      <span style={{ fontFamily: font.body, fontSize:12, fontWeight:600, color: colors.text, flex:1 }}>{value}</span>
-    </div>
-  );
-}
+const NEXT_STEPS = [
+  {
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M8 1L10 6H15L11 9.5L12.5 15L8 12L3.5 15L5 9.5L1 6H6L8 1Z" stroke="#2487F5" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      </svg>
+    ),
+    bg: '#EFF6FF',
+    title: 'Provider review',
+    desc: 'Your orthopedic specialist will review your pain details before your appointment.',
+  },
+  {
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <rect x="1" y="3" width="14" height="11" rx="2.5" stroke="#7C3AED" strokeWidth="1.4" />
+        <path d="M5 1V4M11 1V4" stroke="#7C3AED" strokeWidth="1.4" strokeLinecap="round" />
+        <path d="M1 7H15" stroke="#7C3AED" strokeWidth="1.4" />
+      </svg>
+    ),
+    bg: '#F5F3FF',
+    title: 'Appointment prep',
+    desc: 'Your provider may follow up with additional questions to better prepare.',
+  },
+  {
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M8 1C4.13 1 1 4.13 1 8s3.13 7 7 7 7-3.13 7-7-3.13-7-7-7z" stroke="#059669" strokeWidth="1.4" fill="none" />
+        <path d="M5 8L7 10L11 6" stroke="#059669" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+    bg: '#ECFDF5',
+    title: 'Personalised care',
+    desc: 'Receive tailored recommendations and a care plan built around your pain profile.',
+  },
+];

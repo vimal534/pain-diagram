@@ -5,7 +5,7 @@ export default function StatusBar() {
   return (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '16px 28px 4px', flexShrink: 0, height: 54,
+      padding: '16px 28px 4px', flexShrink: 0, height: 54, backgroundColor: '#FFFFFF',
     }}>
       <span style={{ fontFamily: font.body, fontWeight: 600, fontSize: 15, color: colors.text }}>9:41</span>
       {/* Centre gap — Dynamic Island sits here in the physical frame */}
