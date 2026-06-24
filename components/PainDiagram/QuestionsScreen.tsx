@@ -37,7 +37,6 @@ interface Props {
   onNext: () => void;
 }
 
-// Returns true if a given question index has been answered
 function isAnswered(sr: SelectedRegion, qi: number): boolean {
   if (qi === 0) return sr.aggravatingFactors.length > 0;
   if (qi === 1) return sr.starts.length > 0;
@@ -47,7 +46,6 @@ function isAnswered(sr: SelectedRegion, qi: number): boolean {
   return false;
 }
 
-// Returns compact summary string for a completed question
 function summarise(sr: SelectedRegion, qi: number): string {
   if (qi === 0) {
     const f = sr.aggravatingFactors;
@@ -66,7 +64,6 @@ export default function QuestionsScreen({ regions, editingRegionId, onUpdate, on
   const single = <T extends string>(cur: T | null, val: T): T | null => cur === val ? null : val;
 
   const orderedRegions = [...regions].reverse();
-
   const initialIdx = editingRegionId
     ? Math.max(0, orderedRegions.findIndex(r => r.region.id === editingRegionId))
     : 0;
@@ -79,101 +76,81 @@ export default function QuestionsScreen({ regions, editingRegionId, onUpdate, on
   const lvl = sr?.painLevel ? SEVERITY_COLORS[sr.painLevel] : null;
   const factors = ANATOMY_FACTORS[sr?.region.anatomyGroup ?? ''] ?? ['Movement', 'Exercise', 'At rest', 'Morning stiffness', 'After activity'];
 
-  // Start at first unanswered question; if all answered start at 0
-  const computeInitialQ = () => {
+  const firstUnanswered = () => {
     if (!sr) return 0;
-    for (let i = 0; i < 5; i++) {
-      if (!isAnswered(sr, i)) return i;
-    }
-    return 0;
+    for (let i = 0; i < 5; i++) if (!isAnswered(sr, i)) return i;
+    return 4; // all answered — stay on last
   };
-  const [expandedQ, setExpandedQ] = useState(computeInitialQ);
 
-  // Reset expanded question when region changes
+  const [activeQ, setActiveQ] = useState(firstUnanswered);
+
   useEffect(() => {
-    setExpandedQ(computeInitialQ());
+    setActiveQ(firstUnanswered());
     scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentIdx]);
 
   if (!sr) return null;
 
   const allAnswered = [0, 1, 2, 3, 4].every(i => isAnswered(sr, i));
+  const activeAnswered = isAnswered(sr, activeQ);
 
-  const questions = [
-    {
-      label: `What aggravates your ${sr.region.label.toLowerCase()} pain?`,
-      content: (
-        <ChipGroup options={factors} selected={sr.aggravatingFactors}
-          onToggle={v => onUpdate({ ...sr, aggravatingFactors: toggle(sr.aggravatingFactors, v) })} />
-      ),
-      answered: isAnswered(sr, 0),
-      summary: summarise(sr, 0),
-    },
-    {
-      label: 'How did the pain start?',
-      content: (
-        <ChipGroup options={PAIN_STARTS} selected={sr.starts}
-          onToggle={v => onUpdate({ ...sr, starts: toggle(sr.starts, v as PainStart) })} />
-      ),
-      answered: isAnswered(sr, 1),
-      summary: summarise(sr, 1),
-    },
-    {
-      label: 'How long have you had this pain?',
-      content: (
-        <ChipGroup options={DURATIONS} selected={sr.duration ? [sr.duration] : []}
-          onToggle={v => onUpdate({ ...sr, duration: single(sr.duration, v as Duration) })} />
-      ),
-      answered: isAnswered(sr, 2),
-      summary: summarise(sr, 2),
-    },
-    {
-      label: 'Is it getting better or worse?',
-      content: (
-        <ChipGroup options={PATTERNS} selected={sr.pattern ? [sr.pattern] : []}
-          onToggle={v => onUpdate({ ...sr, pattern: single(sr.pattern, v as Pattern) })} />
-      ),
-      answered: isAnswered(sr, 3),
-      summary: summarise(sr, 3),
-    },
-    {
-      label: 'How much does it affect daily activities?',
-      content: (
-        <ChipGroup options={IMPACTS} selected={sr.dailyImpact ? [sr.dailyImpact] : []}
-          onToggle={v => onUpdate({ ...sr, dailyImpact: single(sr.dailyImpact, v as DailyImpact) })} />
-      ),
-      answered: isAnswered(sr, 4),
-      summary: summarise(sr, 4),
-    },
+  const questionLabels = [
+    `What aggravates your ${sr.region.label.toLowerCase()} pain?`,
+    'How did the pain start?',
+    'How long have you had this pain?',
+    'Is it getting better or worse?',
+    'How much does it affect daily activities?',
   ];
 
-  const handleContinue = (qi: number) => {
-    // Advance to the next unanswered question; if all done or last, stay
-    let next = qi + 1;
-    while (next < 5 && isAnswered(sr, next)) next++;
-    if (next < 5) {
-      setExpandedQ(next);
-      setTimeout(() => scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' }), 50);
-    } else {
-      setExpandedQ(qi); // stay on last
-    }
+  const questionContent = (qi: number) => {
+    if (qi === 0) return (
+      <ChipGroup options={factors} selected={sr.aggravatingFactors}
+        onToggle={v => onUpdate({ ...sr, aggravatingFactors: toggle(sr.aggravatingFactors, v) })} />
+    );
+    if (qi === 1) return (
+      <ChipGroup options={PAIN_STARTS} selected={sr.starts}
+        onToggle={v => onUpdate({ ...sr, starts: toggle(sr.starts, v as PainStart) })} />
+    );
+    if (qi === 2) return (
+      <ChipGroup options={DURATIONS} selected={sr.duration ? [sr.duration] : []}
+        onToggle={v => onUpdate({ ...sr, duration: single(sr.duration, v as Duration) })} />
+    );
+    if (qi === 3) return (
+      <ChipGroup options={PATTERNS} selected={sr.pattern ? [sr.pattern] : []}
+        onToggle={v => onUpdate({ ...sr, pattern: single(sr.pattern, v as Pattern) })} />
+    );
+    if (qi === 4) return (
+      <ChipGroup options={IMPACTS} selected={sr.dailyImpact ? [sr.dailyImpact] : []}
+        onToggle={v => onUpdate({ ...sr, dailyImpact: single(sr.dailyImpact, v as DailyImpact) })} />
+    );
+    return null;
   };
 
-  const handleFooterNext = () => {
-    if (isLastRegion) {
-      onNext();
-    } else {
-      setCurrentIdx(i => i + 1);
+  const handleContinue = () => {
+    if (allAnswered) {
+      if (isLastRegion) { onNext(); }
+      else { setCurrentIdx(i => i + 1); }
+      return;
+    }
+    // Advance to next unanswered
+    let next = activeQ + 1;
+    while (next < 5 && isAnswered(sr, next)) next++;
+    if (next < 5) {
+      setActiveQ(next);
+      scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   const handleBack = () => {
-    if (currentIdx > 0) {
-      setCurrentIdx(i => i - 1);
-    } else {
-      onBack();
-    }
+    if (currentIdx > 0) setCurrentIdx(i => i - 1);
+    else onBack();
   };
+
+  // Completed questions = answered AND not currently active
+  const completedQs = [0, 1, 2, 3, 4].filter(i => isAnswered(sr, i) && i !== activeQ);
+
+  const btnEnabled = activeAnswered;
+  const btnLabel = allAnswered ? 'Review my details →' : 'Continue →';
 
   return (
     <div style={{ backgroundColor: '#F8FAFC', display: 'flex', flexDirection: 'column', height: '100%', fontFamily: font.heading }}>
@@ -198,7 +175,7 @@ export default function QuestionsScreen({ regions, editingRegionId, onUpdate, on
           </div>
         </div>
 
-        {/* Active region chip */}
+        {/* Region chip */}
         <div style={{ paddingLeft: 40 }}>
           {(() => {
             const dotColor = lvl?.dot ?? '#9CA3AF';
@@ -211,141 +188,95 @@ export default function QuestionsScreen({ regions, editingRegionId, onUpdate, on
                 borderRadius: 999, padding: '6px 12px 6px 10px',
               }}>
                 <span style={{ width: 9, height: 9, borderRadius: '50%', backgroundColor: dotColor, display: 'inline-block', flexShrink: 0 }} />
-                <span style={{ fontFamily: font.body, fontSize: 13, fontWeight: 600, color: colors.text }}>
-                  {sr.region.label}
-                </span>
+                <span style={{ fontFamily: font.body, fontSize: 13, fontWeight: 600, color: colors.text }}>{sr.region.label}</span>
               </span>
             );
           })()}
         </div>
       </div>
 
-      {/* Progressive question list */}
+      {/* Zone 1 — Active question (fixed, does not scroll) */}
+      <div style={{
+        backgroundColor: '#FFFFFF', flexShrink: 0,
+        borderBottom: '1px solid #F0F1F5',
+      }}>
+        <div style={{ padding: '16px 16px 6px' }}>
+          <p style={{ margin: '0 0 4px', fontFamily: font.body, fontSize: 11, fontWeight: 700, letterSpacing: '0.6px', textTransform: 'uppercase', color: colors.primary }}>
+            Question {activeQ + 1} of 5
+          </p>
+          <p style={{ margin: 0, fontFamily: font.heading, fontWeight: 700, fontSize: 16, color: colors.text, lineHeight: 1.35 }}>
+            {questionLabels[activeQ]}
+          </p>
+        </div>
+        <div style={{ padding: '12px 16px 18px' }}>
+          {questionContent(activeQ)}
+        </div>
+      </div>
+
+      {/* Zone 2 — Scrollable answer log */}
       <div
         ref={scrollRef}
         onScroll={e => setScrolled((e.currentTarget as HTMLDivElement).scrollTop > 2)}
-        style={{ flex: 1, overflowY: 'auto', padding: '14px 16px 20px' }}
+        style={{ flex: 1, overflowY: 'auto', padding: completedQs.length > 0 ? '14px 16px 12px' : '0' }}
       >
-        {questions.map((q, qi) => {
-          const isActive = expandedQ === qi;
-          const isDone = q.answered && !isActive;
-          const isLocked = !q.answered && !isActive && qi > expandedQ;
-
-          if (isDone) {
-            // Completed — compact summary card with edit button
-            return (
+        {completedQs.length > 0 && (
+          <>
+            <p style={{ margin: '0 0 10px', fontFamily: font.body, fontSize: 11, fontWeight: 700, letterSpacing: '0.6px', textTransform: 'uppercase', color: colors.textMuted }}>
+              Your answers
+            </p>
+            {completedQs.map(qi => (
               <div key={qi} style={{
-                backgroundColor: '#FFFFFF', borderRadius: 16,
+                backgroundColor: '#FFFFFF', borderRadius: 14,
                 border: '1px solid #F0F1F5',
-                marginBottom: 8, padding: '12px 14px',
+                marginBottom: 8, padding: '11px 14px',
                 display: 'flex', alignItems: 'center', gap: 10,
-                transition: 'all 0.2s ease',
               }}>
-                {/* Green check */}
                 <div style={{
-                  width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
+                  width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
                   backgroundColor: '#ECFDF5',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
-                  <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                    <path d="M1 4L3.5 6.5L9 1" stroke="#10B981" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                  <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
+                    <path d="M1 3.5L3 5.5L8 1" stroke="#10B981" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ margin: 0, fontFamily: font.body, fontSize: 11, fontWeight: 600, color: colors.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    {q.label}
+                  <p style={{ margin: 0, fontFamily: font.body, fontSize: 11, color: colors.textMuted, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                    {questionLabels[qi]}
                   </p>
                   <p style={{ margin: '2px 0 0', fontFamily: font.body, fontSize: 13, color: colors.text, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {q.summary}
+                    {summarise(sr, qi)}
                   </p>
                 </div>
-                {/* Edit button */}
-                <button onClick={() => setExpandedQ(qi)} style={{
-                  padding: '5px 10px', borderRadius: 8, border: '1px solid #E5E7EB',
+                <button onClick={() => setActiveQ(qi)} style={{
+                  padding: '4px 10px', borderRadius: 8, border: '1px solid #E5E7EB',
                   backgroundColor: '#F8FAFC', cursor: 'pointer', flexShrink: 0,
                 }}>
                   <span style={{ fontFamily: font.body, fontSize: 12, color: colors.textSecondary, fontWeight: 500 }}>Edit</span>
                 </button>
               </div>
-            );
-          }
-
-          if (isActive) {
-            // Active — fully expanded with chips + Continue button
-            return (
-              <div key={qi} style={{
-                backgroundColor: '#FFFFFF', borderRadius: 18,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.06)',
-                border: `1.5px solid ${colors.primary}22`,
-                marginBottom: 8, overflow: 'hidden',
-              }}>
-                <div style={{ padding: '16px 16px 14px' }}>
-                  <p style={{ margin: 0, fontFamily: font.heading, fontWeight: 700, fontSize: 15, color: colors.text, lineHeight: 1.35 }}>
-                    {q.label}
-                  </p>
-                </div>
-                <div style={{ height: 1, backgroundColor: '#F0F1F5' }} />
-                <div style={{ padding: '14px 16px 16px' }}>
-                  {q.content}
-                </div>
-                {/* Continue inside the card */}
-                {q.answered && qi < 4 && (
-                  <div style={{ padding: '0 16px 16px' }}>
-                    <button onClick={() => handleContinue(qi)} style={{
-                      width: '100%', padding: '12px 0', borderRadius: radius.button, border: 'none',
-                      backgroundColor: colors.primary, cursor: 'pointer',
-                      fontFamily: font.heading, fontWeight: 600, fontSize: 14, color: '#FFF',
-                    }}>
-                      Continue →
-                    </button>
-                  </div>
-                )}
-              </div>
-            );
-          }
-
-          // Locked — upcoming, greyed out
-          return (
-            <div key={qi} style={{
-              backgroundColor: '#FFFFFF', borderRadius: 16,
-              border: '1px solid #F0F1F5',
-              marginBottom: 8, padding: '14px 16px',
-              opacity: 0.45,
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{
-                  width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
-                  backgroundColor: '#F3F4F6',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <span style={{ fontFamily: font.body, fontSize: 10, fontWeight: 700, color: '#9CA3AF' }}>{qi + 1}</span>
-                </div>
-                <p style={{ margin: 0, fontFamily: font.heading, fontWeight: 600, fontSize: 14, color: colors.textSecondary }}>
-                  {q.label}
-                </p>
-              </div>
-            </div>
-          );
-        })}
+            ))}
+          </>
+        )}
       </div>
 
-      {/* Footer */}
+      {/* Sticky footer */}
       <div style={{ padding: '8px 16px 28px', backgroundColor: '#FFFFFF', borderTop: '1px solid #F0F1F5' }}>
         <button
-          onClick={allAnswered ? handleFooterNext : undefined}
+          onClick={btnEnabled ? handleContinue : undefined}
           style={{
             width: '100%', padding: '16px 0', borderRadius: radius.button, border: 'none',
-            background: allAnswered
+            background: btnEnabled
               ? `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryDark} 100%)`
               : '#E5E7EB',
-            cursor: allAnswered ? 'pointer' : 'default',
-            boxShadow: allAnswered ? shadow.button : 'none',
+            cursor: btnEnabled ? 'pointer' : 'default',
+            boxShadow: btnEnabled ? shadow.button : 'none',
             fontFamily: font.heading, fontWeight: 700, fontSize: 16,
-            color: allAnswered ? '#FFF' : '#9CA3AF',
+            color: btnEnabled ? '#FFF' : '#9CA3AF',
             transition: 'all 0.2s ease',
           }}
         >
-          Review my details →
+          {btnLabel}
         </button>
       </div>
     </div>
