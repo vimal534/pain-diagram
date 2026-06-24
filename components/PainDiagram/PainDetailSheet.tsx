@@ -85,7 +85,7 @@ export default function PainDetailSheet({ region, onUpdate, onRemove, onSave, on
                   transition: 'all 0.15s',
                 }}>
                   <span style={{ fontFamily: font.body, fontWeight: active ? 600 : 400, fontSize: 14, color: active ? colors.primary : colors.text }}>
-                    {active ? `✓ ${spot}` : spot}
+                    {spot}
                   </span>
                 </button>
               );
@@ -131,7 +131,7 @@ export default function PainDetailSheet({ region, onUpdate, onRemove, onSave, on
                     transition: 'all 0.15s',
                   }}>
                     <span style={{ fontFamily: font.body, fontWeight: active ? 600 : 400, fontSize: 14, color: active ? colors.primary : colors.text }}>
-                      {active ? `✓ ${desc}` : desc}
+                      {desc}
                     </span>
                   </button>
                 );
@@ -141,18 +141,9 @@ export default function PainDetailSheet({ region, onUpdate, onRemove, onSave, on
         </div>
 
         {/* Footer */}
-        <div style={{ padding: '12px 20px 36px', display: 'flex', gap: 10, borderTop: '1px solid #F3F4F6' }}>
-          <button onClick={onRemove} style={{
-            flex: '0 0 48px', padding: '15px 0', borderRadius: radius.button,
-            border: '1px solid #FECACA', backgroundColor: '#FFF5F5', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <svg width="13" height="14" viewBox="0 0 13 14" fill="none">
-              <path d="M1 3H12M4.5 3V2H8.5V3M2 3L3 12H10L11 3H2Z" stroke="#EF4444" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
+        <div style={{ padding: '12px 20px 36px', borderTop: '1px solid #F3F4F6' }}>
           <button onClick={onSave} disabled={!canSave} style={{
-            flex: 1, padding: '15px 0', borderRadius: radius.button, border: 'none',
+            width: '100%', padding: '15px 0', borderRadius: radius.button, border: 'none',
             backgroundColor: canSave ? colors.primary : '#E5E7EB',
             cursor: canSave ? 'pointer' : 'default',
             boxShadow: canSave ? '0 4px 14px rgba(36,135,245,0.3)' : 'none',

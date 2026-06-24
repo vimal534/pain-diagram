@@ -63,15 +63,6 @@ export default function QuestionsScreen({ regions, editingRegionId, onUpdate, on
     sr.duration !== null || sr.pattern !== null || sr.dailyImpact !== null
   );
 
-  // Advance counter each time a question gets its first answer
-  const answeredCount = sr ? [
-    sr.aggravatingFactors.length > 0,
-    sr.starts.length > 0,
-    sr.duration !== null,
-    sr.pattern !== null,
-    sr.dailyImpact !== null,
-  ].filter(Boolean).length : 0;
-  const activeQuestion = Math.min(6, answeredCount + 1);
 
   const handleNext = () => {
     if (isLast || hasAnswer) {
@@ -114,25 +105,7 @@ export default function QuestionsScreen({ regions, editingRegionId, onUpdate, on
             <h1 style={{ margin: 0, fontFamily: font.heading, fontWeight: 800, fontSize: 22, color: colors.text, letterSpacing: '-0.4px' }}>
               Tell us about your pain.
             </h1>
-            <p style={{ margin: '3px 0 0', fontFamily: font.body, fontSize: 13, color: colors.textSecondary }}>
-              Question {activeQuestion} of 6
-            </p>
           </div>
-
-          {/* Step dots */}
-          {orderedRegions.length > 1 && (
-            <div style={{ display: 'flex', gap: 5, alignItems: 'center', paddingTop: 6 }}>
-              {orderedRegions.map((_, i) => (
-                <div key={i} style={{
-                  width: i === currentIdx ? 18 : 6,
-                  height: 6, borderRadius: 999,
-                  backgroundColor: i === currentIdx ? colors.primary : i < currentIdx ? colors.primary : '#E5E7EB',
-                  opacity: i < currentIdx ? 0.4 : 1,
-                  transition: 'all 0.25s ease',
-                }} />
-              ))}
-            </div>
-          )}
         </div>
 
         {/* Active region chip */}
