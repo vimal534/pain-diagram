@@ -1,5 +1,5 @@
 export type PainLevel = 'mild' | 'moderate' | 'severe';
-export type ExactSpot = 'Outer' | 'Inner' | 'Front' | 'Back' | 'Deep inside' | 'Near joint' | 'Near wrist' | 'Near elbow';
+export type ExactSpot = string;
 export type PainStart = 'After an injury' | 'Exercise or lifting' | 'Gradually over time' | 'Woke up with pain' | 'Not sure';
 export type Duration = 'Less than 24h' | '1–7 days' | '1–4 weeks' | '1–6 months' | 'More than 6 months';
 export type Pattern = 'Improving' | 'Stable' | 'Worsening';

@@ -1,8 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { SelectedRegion, ExactSpot, PainLevel, PainDescriptor } from '../../types/pain';
+import { SelectedRegion, PainLevel, PainDescriptor } from '../../types/pain';
 import { colors, radius, font, SEVERITY_COLORS } from './tokens';
 
-const EXACT_SPOTS: ExactSpot[] = ['Front', 'Inner', 'Outer', 'Back', 'Deep inside'];
+const SUB_REGIONS: Record<string, string[]> = {
+  head:     ['Forehead', 'Temple (left)', 'Temple (right)', 'Top of head', 'Back of head', 'Behind ear'],
+  neck:     ['Front of neck', 'Left side', 'Right side', 'Back of neck', 'Base of skull', 'Throat'],
+  shoulder: ['Front of shoulder', 'Top of shoulder', 'Back of shoulder', 'Outer shoulder', 'Shoulder blade', 'Rotator cuff'],
+  upperarm: ['Front (bicep)', 'Back (tricep)', 'Inner arm', 'Outer arm', 'Near shoulder', 'Near elbow'],
+  elbow:    ['Outer elbow', 'Inner elbow', 'Back of elbow', 'Front of elbow', 'Elbow cap'],
+  forearm:  ['Inner forearm', 'Outer forearm', 'Near elbow', 'Near wrist', 'Front', 'Back'],
+  wrist:    ['Inner wrist', 'Outer wrist', 'Top of wrist', 'Palm side', 'Left side', 'Right side'],
+  hand:     ['Palm', 'Back of hand', 'Thumb', 'Index finger', 'Middle finger', 'Pinky side'],
+  chest:    ['Centre of chest', 'Left chest', 'Right chest', 'Upper chest', 'Lower chest', 'Under breastbone'],
+  abdomen:  ['Upper abdomen', 'Lower abdomen', 'Left side', 'Right side', 'Around navel', 'Under ribs'],
+  pelvis:   ['Lower abdomen', 'Groin (left)', 'Groin (right)', 'Hip joint', 'Tailbone / Coccyx', 'Pubic area'],
+  hip:      ['Hip joint', 'Outer hip', 'Front of hip', 'Groin area', 'Buttock', 'Side of thigh'],
+  thigh:    ['Front of thigh', 'Back of thigh', 'Inner thigh', 'Outer thigh', 'Near hip', 'Near knee'],
+  knee:     ['Front (kneecap)', 'Inner knee', 'Outer knee', 'Back of knee', 'Below kneecap', 'Above kneecap'],
+  calf:     ['Inner calf', 'Outer calf', 'Back of leg', 'Upper calf', 'Lower calf', 'Behind knee'],
+  ankle:    ['Inner ankle', 'Outer ankle', 'Front of ankle', 'Back of ankle', 'Achilles tendon', 'Around the joint'],
+  foot:     ['Heel', 'Arch', 'Ball of foot', 'Top of foot', 'Big toe', 'Outer toes'],
+  back:     ['Upper back', 'Middle back', 'Lower back', 'Left side', 'Right side', 'Tailbone'],
+};
+
+const FALLBACK_SPOTS = ['Front', 'Back', 'Left side', 'Right side', 'Deep inside'];
+
 const DESCRIPTORS: PainDescriptor[] = ['Sharp', 'Burning', 'Stiffness', 'Throbbing', 'Tingling', 'Numbness'];
 
 interface Props {
@@ -17,7 +39,8 @@ export default function PainDetailSheet({ region, onUpdate, onRemove, onSave, on
   const [visible, setVisible] = useState(false);
   useEffect(() => { const t = setTimeout(() => setVisible(true), 12); return () => clearTimeout(t); }, []);
 
-  const setSpot = (s: ExactSpot) => onUpdate({ ...region, exactSpot: region.exactSpot === s ? null : s });
+  const subRegions = SUB_REGIONS[region.region.anatomyGroup] ?? FALLBACK_SPOTS;
+  const setSpot = (s: string) => onUpdate({ ...region, exactSpot: region.exactSpot === s ? null : s });
   const setLevel = (l: PainLevel) => onUpdate({ ...region, painLevel: region.painLevel === l ? null : l });
   const toggleDesc = (d: PainDescriptor) => {
     const has = region.descriptors.includes(d);
@@ -72,10 +95,10 @@ export default function PainDetailSheet({ region, onUpdate, onRemove, onSave, on
         {/* Scrollable body */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '20px 20px 0' }}>
 
-          {/* EXACT SPOT */}
-          <Section label="Where exactly?" />
+          {/* SUB-REGION */}
+          <Section label="Which part specifically?" />
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
-            {EXACT_SPOTS.map(spot => {
+            {subRegions.map(spot => {
               const active = region.exactSpot === spot;
               return (
                 <button key={spot} onClick={() => setSpot(spot)} style={{
