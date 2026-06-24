@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { SelectedRegion, PainStart, Duration, Pattern, DailyImpact } from '../../types/pain';
 import { colors, radius, shadow, font, SEVERITY_COLORS } from './tokens';
 import StatusBar from './StatusBar';
@@ -37,12 +37,34 @@ interface Props {
   onNext: () => void;
 }
 
+// Returns true if a given question index has been answered
+function isAnswered(sr: SelectedRegion, qi: number): boolean {
+  if (qi === 0) return sr.aggravatingFactors.length > 0;
+  if (qi === 1) return sr.starts.length > 0;
+  if (qi === 2) return sr.duration !== null;
+  if (qi === 3) return sr.pattern !== null;
+  if (qi === 4) return sr.dailyImpact !== null;
+  return false;
+}
+
+// Returns compact summary string for a completed question
+function summarise(sr: SelectedRegion, qi: number): string {
+  if (qi === 0) {
+    const f = sr.aggravatingFactors;
+    return f.length <= 2 ? f.join(', ') : `${f.slice(0, 2).join(', ')} +${f.length - 2} more`;
+  }
+  if (qi === 1) return sr.starts.join(', ');
+  if (qi === 2) return sr.duration ?? '';
+  if (qi === 3) return sr.pattern ?? '';
+  if (qi === 4) return sr.dailyImpact ?? '';
+  return '';
+}
+
 export default function QuestionsScreen({ regions, editingRegionId, onUpdate, onBack, onNext }: Props) {
   const toggle = <T extends string>(arr: T[], val: T): T[] =>
     arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val];
   const single = <T extends string>(cur: T | null, val: T): T | null => cur === val ? null : val;
 
-  // Most recently selected first
   const orderedRegions = [...regions].reverse();
 
   const initialIdx = editingRegionId
@@ -51,38 +73,107 @@ export default function QuestionsScreen({ regions, editingRegionId, onUpdate, on
   const [currentIdx, setCurrentIdx] = useState(initialIdx);
   const [scrolled, setScrolled] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const questionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const isLast = currentIdx === orderedRegions.length - 1;
   const sr = orderedRegions[currentIdx];
+  const isLastRegion = currentIdx === orderedRegions.length - 1;
   const lvl = sr?.painLevel ? SEVERITY_COLORS[sr.painLevel] : null;
   const factors = ANATOMY_FACTORS[sr?.region.anatomyGroup ?? ''] ?? ['Movement', 'Exercise', 'At rest', 'Morning stiffness', 'After activity'];
 
-  const hasAnswer = sr && (
-    sr.painLevel !== null || sr.aggravatingFactors.length > 0 || sr.starts.length > 0 ||
-    sr.duration !== null || sr.pattern !== null || sr.dailyImpact !== null
-  );
+  // Start at first unanswered question; if all answered start at 0
+  const computeInitialQ = () => {
+    if (!sr) return 0;
+    for (let i = 0; i < 5; i++) {
+      if (!isAnswered(sr, i)) return i;
+    }
+    return 0;
+  };
+  const [expandedQ, setExpandedQ] = useState(computeInitialQ);
 
+  // Reset expanded question when region changes
+  useEffect(() => {
+    setExpandedQ(computeInitialQ());
+    scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentIdx]);
 
-  const handleNext = () => {
-    if (isLast || hasAnswer) {
+  if (!sr) return null;
+
+  const allAnswered = [0, 1, 2, 3, 4].every(i => isAnswered(sr, i));
+
+  const questions = [
+    {
+      label: `What aggravates your ${sr.region.label.toLowerCase()} pain?`,
+      content: (
+        <ChipGroup options={factors} selected={sr.aggravatingFactors}
+          onToggle={v => onUpdate({ ...sr, aggravatingFactors: toggle(sr.aggravatingFactors, v) })} />
+      ),
+      answered: isAnswered(sr, 0),
+      summary: summarise(sr, 0),
+    },
+    {
+      label: 'How did the pain start?',
+      content: (
+        <ChipGroup options={PAIN_STARTS} selected={sr.starts}
+          onToggle={v => onUpdate({ ...sr, starts: toggle(sr.starts, v as PainStart) })} />
+      ),
+      answered: isAnswered(sr, 1),
+      summary: summarise(sr, 1),
+    },
+    {
+      label: 'How long have you had this pain?',
+      content: (
+        <ChipGroup options={DURATIONS} selected={sr.duration ? [sr.duration] : []}
+          onToggle={v => onUpdate({ ...sr, duration: single(sr.duration, v as Duration) })} />
+      ),
+      answered: isAnswered(sr, 2),
+      summary: summarise(sr, 2),
+    },
+    {
+      label: 'Is it getting better or worse?',
+      content: (
+        <ChipGroup options={PATTERNS} selected={sr.pattern ? [sr.pattern] : []}
+          onToggle={v => onUpdate({ ...sr, pattern: single(sr.pattern, v as Pattern) })} />
+      ),
+      answered: isAnswered(sr, 3),
+      summary: summarise(sr, 3),
+    },
+    {
+      label: 'How much does it affect daily activities?',
+      content: (
+        <ChipGroup options={IMPACTS} selected={sr.dailyImpact ? [sr.dailyImpact] : []}
+          onToggle={v => onUpdate({ ...sr, dailyImpact: single(sr.dailyImpact, v as DailyImpact) })} />
+      ),
+      answered: isAnswered(sr, 4),
+      summary: summarise(sr, 4),
+    },
+  ];
+
+  const handleContinue = (qi: number) => {
+    // Advance to the next unanswered question; if all done or last, stay
+    let next = qi + 1;
+    while (next < 5 && isAnswered(sr, next)) next++;
+    if (next < 5) {
+      setExpandedQ(next);
+      setTimeout(() => scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' }), 50);
+    } else {
+      setExpandedQ(qi); // stay on last
+    }
+  };
+
+  const handleFooterNext = () => {
+    if (isLastRegion) {
       onNext();
     } else {
       setCurrentIdx(i => i + 1);
-      scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   const handleBack = () => {
     if (currentIdx > 0) {
       setCurrentIdx(i => i - 1);
-      scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       onBack();
     }
   };
-
-  if (!sr) return null;
 
   return (
     <div style={{ backgroundColor: '#F8FAFC', display: 'flex', flexDirection: 'column', height: '100%', fontFamily: font.heading }}>
@@ -90,8 +181,7 @@ export default function QuestionsScreen({ regions, editingRegionId, onUpdate, on
 
       {/* Header */}
       <div style={{
-        padding: '10px 16px 14px',
-        backgroundColor: '#FFFFFF', flexShrink: 0,
+        padding: '10px 16px 14px', backgroundColor: '#FFFFFF', flexShrink: 0,
         borderBottom: scrolled ? '1px solid #E5E7EB' : '1px solid transparent',
         transition: 'border-color 0.15s ease',
       }}>
@@ -130,73 +220,137 @@ export default function QuestionsScreen({ regions, editingRegionId, onUpdate, on
         </div>
       </div>
 
-      {/* Scrollable questions for current area only */}
+      {/* Progressive question list */}
       <div
         ref={scrollRef}
         onScroll={e => setScrolled((e.currentTarget as HTMLDivElement).scrollTop > 2)}
-        style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 16px' }}
+        style={{ flex: 1, overflowY: 'auto', padding: '14px 16px 20px' }}
       >
-        <QuestionCard ref={el => { questionRefs.current[0] = el; }} label={`What aggravates your ${sr.region.label.toLowerCase()} pain?`}>
-          <ChipGroup options={factors} selected={sr.aggravatingFactors}
-            onToggle={v => onUpdate({ ...sr, aggravatingFactors: toggle(sr.aggravatingFactors, v) })} />
-        </QuestionCard>
+        {questions.map((q, qi) => {
+          const isActive = expandedQ === qi;
+          const isDone = q.answered && !isActive;
+          const isLocked = !q.answered && !isActive && qi > expandedQ;
 
-        <QuestionCard ref={el => { questionRefs.current[1] = el; }} label="How did the pain start?">
-          <ChipGroup options={PAIN_STARTS} selected={sr.starts}
-            onToggle={v => onUpdate({ ...sr, starts: toggle(sr.starts, v as PainStart) })} />
-        </QuestionCard>
+          if (isDone) {
+            // Completed — compact summary card with edit button
+            return (
+              <div key={qi} style={{
+                backgroundColor: '#FFFFFF', borderRadius: 16,
+                border: '1px solid #F0F1F5',
+                marginBottom: 8, padding: '12px 14px',
+                display: 'flex', alignItems: 'center', gap: 10,
+                transition: 'all 0.2s ease',
+              }}>
+                {/* Green check */}
+                <div style={{
+                  width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
+                  backgroundColor: '#ECFDF5',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                    <path d="M1 4L3.5 6.5L9 1" stroke="#10B981" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ margin: 0, fontFamily: font.body, fontSize: 11, fontWeight: 600, color: colors.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    {q.label}
+                  </p>
+                  <p style={{ margin: '2px 0 0', fontFamily: font.body, fontSize: 13, color: colors.text, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {q.summary}
+                  </p>
+                </div>
+                {/* Edit button */}
+                <button onClick={() => setExpandedQ(qi)} style={{
+                  padding: '5px 10px', borderRadius: 8, border: '1px solid #E5E7EB',
+                  backgroundColor: '#F8FAFC', cursor: 'pointer', flexShrink: 0,
+                }}>
+                  <span style={{ fontFamily: font.body, fontSize: 12, color: colors.textSecondary, fontWeight: 500 }}>Edit</span>
+                </button>
+              </div>
+            );
+          }
 
-        <QuestionCard ref={el => { questionRefs.current[2] = el; }} label="How long have you had this pain?">
-          <ChipGroup options={DURATIONS} selected={sr.duration ? [sr.duration] : []}
-            onToggle={v => onUpdate({ ...sr, duration: single(sr.duration, v as Duration) })} />
-        </QuestionCard>
+          if (isActive) {
+            // Active — fully expanded with chips + Continue button
+            return (
+              <div key={qi} style={{
+                backgroundColor: '#FFFFFF', borderRadius: 18,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.06)',
+                border: `1.5px solid ${colors.primary}22`,
+                marginBottom: 8, overflow: 'hidden',
+              }}>
+                <div style={{ padding: '16px 16px 14px' }}>
+                  <p style={{ margin: 0, fontFamily: font.heading, fontWeight: 700, fontSize: 15, color: colors.text, lineHeight: 1.35 }}>
+                    {q.label}
+                  </p>
+                </div>
+                <div style={{ height: 1, backgroundColor: '#F0F1F5' }} />
+                <div style={{ padding: '14px 16px 16px' }}>
+                  {q.content}
+                </div>
+                {/* Continue inside the card */}
+                {q.answered && qi < 4 && (
+                  <div style={{ padding: '0 16px 16px' }}>
+                    <button onClick={() => handleContinue(qi)} style={{
+                      width: '100%', padding: '12px 0', borderRadius: radius.button, border: 'none',
+                      backgroundColor: colors.primary, cursor: 'pointer',
+                      fontFamily: font.heading, fontWeight: 600, fontSize: 14, color: '#FFF',
+                    }}>
+                      Continue →
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          }
 
-        <QuestionCard ref={el => { questionRefs.current[3] = el; }} label="Is it getting better or worse?">
-          <ChipGroup options={PATTERNS} selected={sr.pattern ? [sr.pattern] : []}
-            onToggle={v => onUpdate({ ...sr, pattern: single(sr.pattern, v as Pattern) })} />
-        </QuestionCard>
-
-        <QuestionCard ref={el => { questionRefs.current[4] = el; }} label="How much does it affect daily activities?">
-          <ChipGroup options={IMPACTS} selected={sr.dailyImpact ? [sr.dailyImpact] : []}
-            onToggle={v => onUpdate({ ...sr, dailyImpact: single(sr.dailyImpact, v as DailyImpact) })} />
-        </QuestionCard>
+          // Locked — upcoming, greyed out
+          return (
+            <div key={qi} style={{
+              backgroundColor: '#FFFFFF', borderRadius: 16,
+              border: '1px solid #F0F1F5',
+              marginBottom: 8, padding: '14px 16px',
+              opacity: 0.45,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{
+                  width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
+                  backgroundColor: '#F3F4F6',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <span style={{ fontFamily: font.body, fontSize: 10, fontWeight: 700, color: '#9CA3AF' }}>{qi + 1}</span>
+                </div>
+                <p style={{ margin: 0, fontFamily: font.heading, fontWeight: 600, fontSize: 14, color: colors.textSecondary }}>
+                  {q.label}
+                </p>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Footer */}
       <div style={{ padding: '8px 16px 28px', backgroundColor: '#FFFFFF', borderTop: '1px solid #F0F1F5' }}>
-        <button onClick={handleNext} style={{
-          width: '100%', padding: '16px 0', borderRadius: radius.button, border: 'none',
-          background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryDark} 100%)`,
-          cursor: 'pointer', boxShadow: shadow.button,
-          fontFamily: font.heading, fontWeight: 700, fontSize: 16, color: '#FFF',
-        }}>
-          {hasAnswer || isLast ? 'Review my details →' : `Next: ${orderedRegions[currentIdx + 1]?.region.label} →`}
+        <button
+          onClick={allAnswered ? handleFooterNext : undefined}
+          style={{
+            width: '100%', padding: '16px 0', borderRadius: radius.button, border: 'none',
+            background: allAnswered
+              ? `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryDark} 100%)`
+              : '#E5E7EB',
+            cursor: allAnswered ? 'pointer' : 'default',
+            boxShadow: allAnswered ? shadow.button : 'none',
+            fontFamily: font.heading, fontWeight: 700, fontSize: 16,
+            color: allAnswered ? '#FFF' : '#9CA3AF',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          Review my details →
         </button>
       </div>
     </div>
   );
 }
-
-const QuestionCard = React.forwardRef<HTMLDivElement, { label: string; children: React.ReactNode }>(
-  function QuestionCard({ label, children }, ref) {
-  return (
-    <div ref={ref} style={{
-      backgroundColor: '#FFFFFF', borderRadius: 18,
-      boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 4px 14px rgba(0,0,0,0.06)',
-      marginBottom: 12, overflow: 'hidden',
-    }}>
-      <div style={{ padding: '16px 16px 14px' }}>
-        <p style={{ margin: 0, fontFamily: font.heading, fontWeight: 700, fontSize: 15, color: colors.text, lineHeight: 1.35 }}>
-          {label}
-        </p>
-      </div>
-      <div style={{ height: 1, backgroundColor: '#F0F1F5' }} />
-      <div style={{ padding: '14px 16px 16px' }}>
-        {children}
-      </div>
-    </div>
-  );
-});
 
 function ChipGroup({ options, selected, onToggle }: { options: string[]; selected: string[]; onToggle: (v: string) => void }) {
   return (
@@ -211,7 +365,7 @@ function ChipGroup({ options, selected, onToggle }: { options: string[]; selecte
             transition: 'all 0.15s',
           }}>
             <span style={{ fontFamily: font.body, fontWeight: active ? 600 : 400, fontSize: 14, color: active ? colors.primary : colors.text }}>
-              {active ? `✓ ${opt}` : opt}
+              {opt}
             </span>
           </button>
         );
