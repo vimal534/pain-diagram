@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { SelectedRegion, PainLevel, PainDescriptor } from '../../types/pain';
-
-const ARROW_ICON = 'https://www.figma.com/api/mcp/asset/cc501a14-73d9-491e-bf13-2a8ed025144e';
-const CLOSE_ICON = 'https://www.figma.com/api/mcp/asset/3dbedf06-39c7-4023-abf8-f83d21999748';
+import { C } from './tokens';
 
 const EXACT_SPOTS = ['Front shoulder', 'Back shoulder', 'Deep inside shoulder'];
 const PAIN_DESCRIPTORS: PainDescriptor[] = ['Sharp', 'Burning', 'Stiffness', 'Throbbing', 'Tingling', 'Numbness'];
@@ -10,7 +8,7 @@ const PAIN_DESCRIPTORS: PainDescriptor[] = ['Sharp', 'Burning', 'Stiffness', 'Th
 interface PainLevelOption {
   value: PainLevel;
   label: string;
-  dotColor: string;
+  dot: string;
   selectedBg: string;
   selectedBorder: string;
   selectedText: string;
@@ -20,26 +18,26 @@ const PAIN_LEVELS: PainLevelOption[] = [
   {
     value: 'mild',
     label: 'Mild',
-    dotColor: '#EAB308',
-    selectedBg: '#FFFFFF',
-    selectedBorder: '#E5E7EB',
-    selectedText: '#4A5565',
+    dot: C.painMild,
+    selectedBg: C.painMildBg,
+    selectedBorder: C.painMild,
+    selectedText: '#92400E',
   },
   {
     value: 'moderate',
     label: 'Moderate',
-    dotColor: '#F97316',
-    selectedBg: '#FFF7ED',
-    selectedBorder: '#F97316',
-    selectedText: '#1E2939',
+    dot: C.painModerate,
+    selectedBg: C.painModerateBg,
+    selectedBorder: C.painModerate,
+    selectedText: '#9A3412',
   },
   {
     value: 'severe',
     label: 'Severe',
-    dotColor: '#EF4444',
-    selectedBg: '#FFFFFF',
-    selectedBorder: '#E5E7EB',
-    selectedText: '#4A5565',
+    dot: C.painSevere,
+    selectedBg: C.painSevereBg,
+    selectedBorder: C.painSevere,
+    selectedText: '#991B1B',
   },
 ];
 
@@ -51,32 +49,21 @@ interface Props {
   onClose: () => void;
 }
 
-const colors = {
-  primary: '#2487F5',
-  selectedBg: 'rgba(36, 135, 245, 0.08)',
-  borderDefault: '#E5E7EB',
-  textPrimary: '#101828',
-  textSecondary: '#6A7282',
-  textMuted: '#99A1AF',
-  labelColor: '#6A7282',
-};
-
-const sectionLabelStyle: React.CSSProperties = {
-  fontFamily: 'Plus Jakarta Sans, sans-serif',
-  fontWeight: 700,
+const labelStyle: React.CSSProperties = {
+  fontFamily: 'Inter, sans-serif',
+  fontWeight: 600,
   fontSize: 11,
-  lineHeight: '16.5px',
-  letterSpacing: '0.55px',
+  lineHeight: '16px',
+  letterSpacing: '0.7px',
   textTransform: 'uppercase',
-  color: colors.textMuted,
-  marginBottom: 0,
+  color: C.textMuted,
+  margin: 0,
 };
 
 export default function PainDetailSheet({ region, onUpdate, onRemove, onNext, onClose }: Props) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // Trigger slide-up animation
     const t = setTimeout(() => setVisible(true), 10);
     return () => clearTimeout(t);
   }, []);
@@ -105,7 +92,7 @@ export default function PainDetailSheet({ region, onUpdate, onRemove, onNext, on
         style={{
           position: 'absolute',
           inset: 0,
-          backgroundColor: 'rgba(0,0,0,0.2)',
+          backgroundColor: 'rgba(0,0,0,0.25)',
           zIndex: 10,
           opacity: visible ? 1 : 0,
           transition: 'opacity 0.3s ease',
@@ -120,54 +107,29 @@ export default function PainDetailSheet({ region, onUpdate, onRemove, onNext, on
           left: 0,
           right: 0,
           backgroundColor: '#FFFFFF',
-          borderRadius: '20px 20px 0 0',
-          boxShadow: '0px -8px 25px rgba(0,0,0,0.15)',
+          borderRadius: '24px 24px 0 0',
+          boxShadow: '0px -4px 32px rgba(0,0,0,0.12)',
           zIndex: 20,
           transform: visible ? 'translateY(0)' : 'translateY(100%)',
           transition: 'transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)',
           display: 'flex',
           flexDirection: 'column',
-          maxHeight: '82%',
+          maxHeight: '84%',
         }}
       >
-        {/* Handle bar */}
-        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 12, paddingBottom: 4 }}>
-          <div style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: '#E5E7EB' }} />
+        {/* Handle */}
+        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 14, paddingBottom: 4 }}>
+          <div style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: C.border }} />
         </div>
 
         {/* Sheet header */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'space-between',
-            padding: '12px 20px 0',
-          }}
-        >
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '10px 20px 0' }}>
           <div>
-            <p
-              style={{
-                margin: 0,
-                fontFamily: 'Plus Jakarta Sans, sans-serif',
-                fontWeight: 700,
-                fontSize: 16,
-                lineHeight: '24px',
-                color: colors.textPrimary,
-              }}
-            >
+            <p style={{ margin: 0, fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 18, lineHeight: '26px', color: C.textPrimary }}>
               {region.region.label}
             </p>
-            <p
-              style={{
-                margin: '4px 0 0',
-                fontFamily: 'Plus Jakarta Sans, sans-serif',
-                fontWeight: 400,
-                fontSize: 12,
-                lineHeight: '16px',
-                color: colors.textMuted,
-              }}
-            >
-              Refine the spot & how it feels
+            <p style={{ margin: '3px 0 0', fontFamily: 'Inter, sans-serif', fontWeight: 400, fontSize: 13, color: C.textMuted }}>
+              Refine the spot &amp; how it feels
             </p>
           </div>
           <button
@@ -176,7 +138,7 @@ export default function PainDetailSheet({ region, onUpdate, onRemove, onNext, on
               width: 32,
               height: 32,
               borderRadius: '50%',
-              backgroundColor: '#F3F4F6',
+              backgroundColor: C.borderLight,
               border: 'none',
               cursor: 'pointer',
               display: 'flex',
@@ -185,15 +147,18 @@ export default function PainDetailSheet({ region, onUpdate, onRemove, onNext, on
               flexShrink: 0,
             }}
           >
-            <img src={CLOSE_ICON} alt="Close" style={{ width: 15, height: 15 }} />
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.textSecondary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
           </button>
         </div>
 
         {/* Scrollable content */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px' }}>
+
           {/* EXACT SPOT */}
           <div style={{ marginTop: 20 }}>
-            <p style={sectionLabelStyle}>Exact Spot</p>
+            <p style={labelStyle}>Exact Spot</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, paddingTop: 10 }}>
               {EXACT_SPOTS.map((spot) => {
                 const isSelected = region.exactSpot === spot;
@@ -202,24 +167,25 @@ export default function PainDetailSheet({ region, onUpdate, onRemove, onNext, on
                     key={spot}
                     onClick={() => toggleExactSpot(spot)}
                     style={{
-                      padding: '11px 11px',
-                      borderRadius: 16,
-                      border: `1.5px solid ${isSelected ? colors.primary : colors.borderDefault}`,
-                      backgroundColor: isSelected ? colors.selectedBg : '#FFFFFF',
+                      padding: '10px 14px',
+                      borderRadius: 12,
+                      border: `1.5px solid ${isSelected ? C.primary : C.border}`,
+                      backgroundColor: isSelected ? C.primaryLight : '#FFFFFF',
                       cursor: 'pointer',
                       outline: 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      transition: 'all 0.12s ease',
                     }}
                   >
-                    <span
-                      style={{
-                        fontFamily: 'Plus Jakarta Sans, sans-serif',
-                        fontWeight: 600,
-                        fontSize: 14,
-                        lineHeight: '20px',
-                        color: isSelected ? colors.primary : '#4A5565',
-                      }}
-                    >
-                      {isSelected ? `✓ ${spot}` : spot}
+                    {isSelected && (
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.primary} strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 6L9 17l-5-5" />
+                      </svg>
+                    )}
+                    <span style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: 14, color: isSelected ? C.primary : C.textPrimary }}>
+                      {spot}
                     </span>
                   </button>
                 );
@@ -228,10 +194,10 @@ export default function PainDetailSheet({ region, onUpdate, onRemove, onNext, on
           </div>
 
           {/* PAIN LEVEL */}
-          <div style={{ marginTop: 20 }}>
-            <p style={sectionLabelStyle}>Pain Level</p>
+          <div style={{ marginTop: 22 }}>
+            <p style={labelStyle}>Pain Level</p>
             <div style={{ display: 'flex', gap: 8, paddingTop: 10 }}>
-              {PAIN_LEVELS.map(({ value, label, dotColor, selectedBg, selectedBorder, selectedText }) => {
+              {PAIN_LEVELS.map(({ value, label, dot, selectedBg, selectedBorder, selectedText }) => {
                 const isSelected = region.painLevel === value;
                 return (
                   <button
@@ -239,9 +205,9 @@ export default function PainDetailSheet({ region, onUpdate, onRemove, onNext, on
                     onClick={() => togglePainLevel(value)}
                     style={{
                       flex: 1,
-                      padding: '11px 1px',
-                      borderRadius: 16,
-                      border: `1.5px solid ${isSelected ? selectedBorder : colors.borderDefault}`,
+                      padding: '11px 4px',
+                      borderRadius: 12,
+                      border: `1.5px solid ${isSelected ? selectedBorder : C.border}`,
                       backgroundColor: isSelected ? selectedBg : '#FFFFFF',
                       cursor: 'pointer',
                       outline: 'none',
@@ -249,27 +215,11 @@ export default function PainDetailSheet({ region, onUpdate, onRemove, onNext, on
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: 6,
+                      transition: 'all 0.12s ease',
                     }}
                   >
-                    <span
-                      style={{
-                        width: 10,
-                        height: 10,
-                        borderRadius: '50%',
-                        backgroundColor: dotColor,
-                        flexShrink: 0,
-                        display: 'inline-block',
-                      }}
-                    />
-                    <span
-                      style={{
-                        fontFamily: 'Plus Jakarta Sans, sans-serif',
-                        fontWeight: 600,
-                        fontSize: 14,
-                        lineHeight: '20px',
-                        color: isSelected ? selectedText : '#4A5565',
-                      }}
-                    >
+                    <span style={{ width: 9, height: 9, borderRadius: '50%', backgroundColor: dot, flexShrink: 0, display: 'inline-block' }} />
+                    <span style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: 13, color: isSelected ? selectedText : C.textSecondary }}>
                       {label}
                     </span>
                   </button>
@@ -278,23 +228,10 @@ export default function PainDetailSheet({ region, onUpdate, onRemove, onNext, on
             </div>
           </div>
 
-          {/* DESCRIBE YOUR PAIN */}
-          <div style={{ marginTop: 20, marginBottom: 24 }}>
-            <p
-              style={{
-                fontFamily: 'Plus Jakarta Sans, sans-serif',
-                fontWeight: 600,
-                fontSize: 12,
-                lineHeight: '16px',
-                letterSpacing: '0.3px',
-                textTransform: 'uppercase',
-                color: colors.labelColor,
-                margin: 0,
-              }}
-            >
-              Describe Your Pain
-            </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, paddingTop: 8 }}>
+          {/* DESCRIPTORS */}
+          <div style={{ marginTop: 22, marginBottom: 24 }}>
+            <p style={labelStyle}>Describe your pain</p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, paddingTop: 10 }}>
               {PAIN_DESCRIPTORS.map((desc) => {
                 const isSelected = region.descriptors.includes(desc);
                 return (
@@ -303,23 +240,24 @@ export default function PainDetailSheet({ region, onUpdate, onRemove, onNext, on
                     onClick={() => toggleDescriptor(desc)}
                     style={{
                       padding: '9px 15px',
-                      borderRadius: 16,
-                      border: `1.5px solid ${isSelected ? colors.primary : colors.borderDefault}`,
-                      backgroundColor: isSelected ? colors.selectedBg : '#FFFFFF',
+                      borderRadius: 12,
+                      border: `1.5px solid ${isSelected ? C.primary : C.border}`,
+                      backgroundColor: isSelected ? C.primaryLight : '#FFFFFF',
                       cursor: 'pointer',
                       outline: 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      transition: 'all 0.12s ease',
                     }}
                   >
-                    <span
-                      style={{
-                        fontFamily: 'Plus Jakarta Sans, sans-serif',
-                        fontWeight: 500,
-                        fontSize: 14,
-                        lineHeight: '20px',
-                        color: isSelected ? colors.primary : colors.textPrimary,
-                      }}
-                    >
-                      {isSelected ? `✓ ${desc}` : desc}
+                    {isSelected && (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={C.primary} strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 6L9 17l-5-5" />
+                      </svg>
+                    )}
+                    <span style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 500, fontSize: 14, color: isSelected ? C.primary : C.textPrimary }}>
+                      {desc}
                     </span>
                   </button>
                 );
@@ -329,35 +267,21 @@ export default function PainDetailSheet({ region, onUpdate, onRemove, onNext, on
         </div>
 
         {/* Footer */}
-        <div
-          style={{
-            padding: '24px 20px 20px',
-            display: 'flex',
-            gap: 12,
-            borderTop: '1px solid #F3F4F6',
-          }}
-        >
+        <div style={{ padding: '16px 20px 24px', display: 'flex', gap: 10, borderTop: `1px solid ${C.borderLight}` }}>
           <button
             onClick={onRemove}
             style={{
-              flex: '0 0 115px',
-              padding: '15px 1px',
-              borderRadius: 16,
-              border: '1.5px solid #FFC9C9',
-              backgroundColor: 'transparent',
+              flex: '0 0 110px',
+              padding: '14px 4px',
+              borderRadius: 14,
+              border: `1.5px solid ${C.dangerBorder}`,
+              backgroundColor: C.dangerBg,
               cursor: 'pointer',
               outline: 'none',
+              transition: 'opacity 0.12s ease',
             }}
           >
-            <span
-              style={{
-                fontFamily: 'Plus Jakarta Sans, sans-serif',
-                fontWeight: 600,
-                fontSize: 14,
-                lineHeight: '20px',
-                color: '#FB2C36',
-              }}
-            >
+            <span style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600, fontSize: 14, color: C.danger }}>
               Remove
             </span>
           </button>
@@ -366,29 +290,24 @@ export default function PainDetailSheet({ region, onUpdate, onRemove, onNext, on
             style={{
               flex: 1,
               padding: '14px 0',
-              borderRadius: 16,
+              borderRadius: 14,
               border: 'none',
-              backgroundColor: colors.primary,
+              backgroundColor: C.primary,
               cursor: 'pointer',
               outline: 'none',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 4,
+              gap: 6,
+              boxShadow: '0 3px 10px rgba(13, 148, 136, 0.35)',
             }}
           >
-            <span
-              style={{
-                fontFamily: 'Inter, sans-serif',
-                fontWeight: 600,
-                fontSize: 16,
-                lineHeight: '24px',
-                color: '#FFFFFF',
-              }}
-            >
+            <span style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 16, color: '#FFFFFF' }}>
               Next
             </span>
-            <img src={ARROW_ICON} alt="→" style={{ width: 18, height: 18 }} />
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
           </button>
         </div>
       </div>

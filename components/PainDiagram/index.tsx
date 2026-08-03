@@ -98,6 +98,10 @@ export default function PainDiagram({ onComplete, onBack }: Props) {
     onComplete?.(state);
   };
 
+  const handleContinue = () => {
+    setState((s) => ({ ...s, step: 3 }));
+  };
+
   const handleBack = () => {
     if (state.step === 3) {
       setState((s) => ({ ...s, step: 1 }));
@@ -124,6 +128,7 @@ export default function PainDiagram({ onComplete, onBack }: Props) {
             selectedRegions={state.selectedRegions}
             onViewToggle={handleViewToggle}
             onRegionTap={handleRegionTap}
+            onContinue={handleContinue}
             onBack={handleBack}
           />
         </div>
